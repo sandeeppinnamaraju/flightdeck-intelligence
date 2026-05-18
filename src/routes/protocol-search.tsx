@@ -1,18 +1,16 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, useRef, useEffect } from "react";
 import { Search, ChevronDown, ArrowLeft } from "lucide-react";
-import { zodValidator, fallback } from "@tanstack/zod-adapter";
-import { z } from "zod";
 import { therapeuticAreas, protocolResults } from "@/lib/data";
 import { PhaseBadge } from "@/components/badges";
 import { cn } from "@/lib/utils";
 
-const searchSchema = z.object({
-  mode: fallback(z.enum(["input", "results"]), "input").default("input"),
-});
+type SearchMode = "input" | "results";
 
 export const Route = createFileRoute("/protocol-search")({
-  validateSearch: zodValidator(searchSchema),
+  validateSearch: (search: Record<string, unknown>): { mode: SearchMode } => ({
+    mode: search.mode === "results" ? "results" : "input",
+  }),
   head: () => ({
     meta: [
       { title: "Protocol Similarity Search — Flight Deck" },
