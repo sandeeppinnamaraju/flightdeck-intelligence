@@ -1,0 +1,220 @@
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useState, useRef, useEffect } from "react";
+import { Search, ChevronDown, ArrowLeft } from "lucide-react";
+import { zodValidator, fallback } from "@tanstack/zod-adapter";
+import { z } from "zod";
+import { therapeuticAreas, protocolResults } from "@/lib/data";
+import { PhaseBadge } from "@/components/badges";
+import { cn } from "@/lib/utils";
+
+const searchSchema = z.object({
+  mode: fallback(z.enum(["input", "results"]), "input").default("input"),
+});
+
+export const Route = createFileRoute("/protocol-search")({
+  validateSearch: zodValidator(searchSchema),
+  head: () => ({
+    meta: [
+      { title: "Protocol Similarity Search — Flight Deck" },
+      { name: "description", content: "Find similar completed clinical study protocols and their outcomes using semantic search." },
+    ],
+  }),
+  component: ProtocolSearchPage,
+});
+
+function ProtocolSearchPage() {
+  const { mode } = Route.useSearch();
+  return mode === "results" ? <ResultsView /> : <InputView />;
+}
+
+function InputView() {
+  const navigate = useNavigate({ from: "/protocol-search" });
+  const [summary, setSummary] = useState("");
+  const [selected, setSelected] = useState<string[]>([]);
+  const [open, setOpen] = useState(false);
+  const dropRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const h = (e: MouseEvent) => {
+      if (dropRef.current && !dropRef.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", h);
+    return () => document.removeEventListener("mousedown", h);
+  }, [open]);
+
+  const max = 500;
+  const enabled = summary.trim().length > 0;
+
+  const label =
+    selected.length === 0
+      ? "All Therapeutic Areas"
+      : selected.length === 1
+      ? selected[0]
+      : `${selected.length} selected`;
+
+  const toggle = (a: string) =>
+    setSelected((s) => (s.includes(a) ? s.filter((x) => x !== a) : [...s, a]));
+
+  return (
+    <main className="mx-auto max-w-[1600px] px-6 py-12">
+      <div className="text-center">
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">
+          Protocol Similarity Search
+        </h1>
+        <p className="mt-2 text-base text-muted-foreground">
+          Describe your protocol to find similar completed studies and their outcomes
+        </p>
+      </div>
+
+      <div className="mx-auto mt-8 max-w-3xl rounded-2xl border border-border bg-card p-6 shadow-card">
+        <label className="text-sm font-semibold text-foreground">Protocol Summary</label>
+        <div className="relative mt-2">
+          <textarea
+            value={summary}
+            onChange={(e) => setSummary(e.target.value.slice(0, max))}
+            placeholder="Describe your protocol — phase, indication, patient population, primary endpoint, key design features..."
+            rows={5}
+            className="w-full resize-none rounded-lg border border-input bg-card px-3.5 py-3 text-sm leading-relaxed placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/20"
+          />
+          <span className="pointer-events-none absolute bottom-2 right-3 text-xs text-muted-foreground">
+            {summary.length}/{max}
+          </span>
+        </div>
+
+        <div className="mt-5">
+          <label className="text-sm font-semibold text-foreground">
+            Therapeutic Area{" "}
+            <span className="font-normal text-muted-foreground">(optional — select one or more)</span>
+          </label>
+          <div className="relative mt-2" ref={dropRef}>
+            <button
+              onClick={() => setOpen((o) => !o)}
+              className="inline-flex h-10 min-w-[220px] items-center justify-between gap-2 rounded-lg border border-input bg-card px-3 text-sm text-foreground hover:bg-muted"
+            >
+              {label}
+              <ChevronDown
+                className={cn("h-4 w-4 text-muted-foreground transition-transform", open && "rotate-180")}
+              />
+            </button>
+            {open && (
+              <div className="absolute z-30 mt-1.5 max-h-72 w-72 overflow-auto rounded-lg border border-border bg-popover py-1.5 shadow-popover">
+                {therapeuticAreas.map((a) => {
+                  const checked = selected.includes(a);
+                  return (
+                    <label
+                      key={a}
+                      className="flex cursor-pointer items-center gap-2.5 px-3 py-1.5 text-sm text-foreground hover:bg-muted"
+                    >
+                      <span
+                        className={cn(
+                          "flex h-4 w-4 items-center justify-center rounded border",
+                          checked ? "border-primary bg-primary text-primary-foreground" : "border-input bg-card",
+                        )}
+                      >
+                        {checked && (
+                          <svg viewBox="0 0 12 12" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M2 6l3 3 5-6" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                        )}
+                      </span>
+                      {a}
+                    </label>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <button
+          disabled={!enabled}
+          onClick={() => navigate({ search: { mode: "results" } })}
+          className={cn(
+            "mt-6 inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg text-sm font-semibold transition-colors",
+            enabled
+              ? "bg-[oklch(0.18_0.03_260)] text-white hover:bg-[oklch(0.25_0.04_260)]"
+              : "cursor-not-allowed bg-muted text-muted-foreground",
+          )}
+        >
+          <Search className="h-4 w-4" />
+          Find Similar Protocols
+        </button>
+      </div>
+    </main>
+  );
+}
+
+function matchColor(pct: number) {
+  if (pct >= 80) return { text: "text-success", bar: "bg-success" };
+  if (pct >= 60) return { text: "text-warning-foreground", bar: "bg-warning" };
+  if (pct >= 45) return { text: "text-[oklch(0.65_0.18_50)]", bar: "bg-[oklch(0.7_0.17_50)]" };
+  return { text: "text-danger", bar: "bg-danger" };
+}
+
+function ResultsView() {
+  return (
+    <main className="mx-auto max-w-4xl px-6 py-8">
+      <div className="flex items-center justify-between">
+        <Link
+          to="/protocol-search"
+          search={{ mode: "input" }}
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          New search
+        </Link>
+        <p className="text-sm text-muted-foreground">
+          <span className="font-semibold text-foreground">{protocolResults.length}</span> results found
+        </p>
+      </div>
+
+      <div className="mt-5 space-y-3">
+        {protocolResults.map((r) => {
+          const c = matchColor(r.match);
+          return (
+            <article
+              key={r.id}
+              className="rounded-xl border border-border bg-card p-5 shadow-card transition-shadow hover:shadow-card-hover"
+            >
+              <div className="flex gap-4">
+                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-semibold text-muted-foreground">
+                  {r.rank}
+                </div>
+
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="rounded-md bg-accent px-2 py-0.5 font-mono text-xs font-semibold text-accent-foreground">
+                      {r.id}
+                    </span>
+                    {r.phase ? <PhaseBadge value={r.phase} /> : <span className="text-muted-foreground">—</span>}
+                    <span className="text-sm text-muted-foreground">{r.category}</span>
+                  </div>
+                  <h3 className="mt-2 text-base font-semibold leading-snug text-foreground">{r.title}</h3>
+                  <p className="mt-0.5 text-sm text-muted-foreground">{r.indication}</p>
+
+                  <ul className="mt-3 space-y-1">
+                    {r.bullets.map((b, i) => (
+                      <li key={i} className="flex gap-2 text-sm text-foreground/90">
+                        <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-muted-foreground/60" />
+                        <span>{b}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="w-28 shrink-0 text-right">
+                  <p className={cn("text-2xl font-bold tabular-nums", c.text)}>{r.match}%</p>
+                  <p className="text-xs text-muted-foreground">match</p>
+                  <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                    <div className={cn("h-full rounded-full", c.bar)} style={{ width: `${r.match}%` }} />
+                  </div>
+                </div>
+              </div>
+            </article>
+          );
+        })}
+      </div>
+    </main>
+  );
+}
