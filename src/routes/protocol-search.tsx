@@ -1,9 +1,16 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState, useRef, useEffect } from "react";
-import { Search, ChevronDown, ArrowLeft } from "lucide-react";
+import { useState } from "react";
+import { Search, ArrowLeft, X } from "lucide-react";
 import { therapeuticAreas, protocolResults } from "@/lib/data";
 import { PhaseBadge } from "@/components/badges";
 import { cn } from "@/lib/utils";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type SearchMode = "input" | "results";
 
