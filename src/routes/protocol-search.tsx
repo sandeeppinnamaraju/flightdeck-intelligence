@@ -116,9 +116,11 @@ function InputView() {
                   {therapeuticAreas.map((a) => {
                     const checked = selected.includes(a);
                     return (
-                      <label
+                      <button
                         key={a}
-                        className="flex cursor-pointer items-center gap-2.5 px-3 py-1.5 text-sm text-foreground hover:bg-muted"
+                        type="button"
+                        onClick={() => toggleArea(a)}
+                        className="flex w-full cursor-pointer items-center gap-2.5 px-3 py-1.5 text-left text-sm text-foreground hover:bg-muted"
                       >
                         <span
                           className={cn(
@@ -131,7 +133,7 @@ function InputView() {
                           {checked && <Check className="h-3 w-3" strokeWidth={3} />}
                         </span>
                         <span className="flex-1">{a}</span>
-                      </label>
+                      </button>
                     );
                   })}
                 </div>
