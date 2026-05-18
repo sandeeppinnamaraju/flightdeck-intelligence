@@ -36,30 +36,16 @@ function InputView() {
   const navigate = useNavigate({ from: "/protocol-search" });
   const [summary, setSummary] = useState("");
   const [selected, setSelected] = useState<string[]>([]);
-  const [open, setOpen] = useState(false);
-  const dropRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!open) return;
-    const h = (e: MouseEvent) => {
-      if (dropRef.current && !dropRef.current.contains(e.target as Node)) setOpen(false);
-    };
-    document.addEventListener("mousedown", h);
-    return () => document.removeEventListener("mousedown", h);
-  }, [open]);
 
   const max = 500;
   const enabled = summary.trim().length > 0;
 
-  const label =
-    selected.length === 0
-      ? "All Therapeutic Areas"
-      : selected.length === 1
-      ? selected[0]
-      : `${selected.length} selected`;
+  const addArea = (a: string) => {
+    if (!selected.includes(a)) setSelected([...selected, a]);
+  };
+  const removeArea = (a: string) => setSelected(selected.filter((x) => x !== a));
 
-  const toggle = (a: string) =>
-    setSelected((s) => (s.includes(a) ? s.filter((x) => x !== a) : [...s, a]));
+  const available = therapeuticAreas.filter((a) => !selected.includes(a));
 
   return (
     <main className="mx-auto max-w-[1600px] px-6 py-12">
@@ -92,45 +78,52 @@ function InputView() {
             Therapeutic Area{" "}
             <span className="font-normal text-muted-foreground">(optional — select one or more)</span>
           </label>
-          <div className="relative mt-2" ref={dropRef}>
-            <button
-              onClick={() => setOpen((o) => !o)}
-              className="inline-flex h-10 min-w-[220px] items-center justify-between gap-2 rounded-lg border border-input bg-card px-3 text-sm text-foreground hover:bg-muted"
+
+          <div className="mt-2">
+            <Select
+              value=""
+              onValueChange={(v) => addArea(v)}
+              disabled={available.length === 0}
             >
-              {label}
-              <ChevronDown
-                className={cn("h-4 w-4 text-muted-foreground transition-transform", open && "rotate-180")}
-              />
-            </button>
-            {open && (
-              <div className="absolute z-30 mt-1.5 max-h-72 w-72 overflow-auto rounded-lg border border-border bg-popover py-1.5 shadow-popover">
-                {therapeuticAreas.map((a) => {
-                  const checked = selected.includes(a);
-                  return (
-                    <label
-                      key={a}
-                      className="flex cursor-pointer items-center gap-2.5 px-3 py-1.5 text-sm text-foreground hover:bg-muted"
-                    >
-                      <span
-                        className={cn(
-                          "flex h-4 w-4 items-center justify-center rounded border",
-                          checked ? "border-primary bg-primary text-primary-foreground" : "border-input bg-card",
-                        )}
-                      >
-                        {checked && (
-                          <svg viewBox="0 0 12 12" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M2 6l3 3 5-6" strokeLinecap="round" strokeLinejoin="round" />
-                          </svg>
-                        )}
-                      </span>
-                      {a}
-                    </label>
-                  );
-                })}
-              </div>
-            )}
+              <SelectTrigger className="h-10 w-full sm:w-[280px]">
+                <SelectValue
+                  placeholder={
+                    available.length === 0 ? "All areas selected" : "Select a therapeutic area..."
+                  }
+                />
+              </SelectTrigger>
+              <SelectContent>
+                {available.map((a) => (
+                  <SelectItem key={a} value={a}>
+                    {a}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
+
+          {selected.length > 0 && (
+            <div className="mt-3 flex flex-wrap gap-1.5">
+              {selected.map((a) => (
+                <span
+                  key={a}
+                  className="inline-flex items-center gap-1 rounded-md border border-border bg-accent px-2 py-1 text-xs font-medium text-accent-foreground"
+                >
+                  {a}
+                  <button
+                    type="button"
+                    onClick={() => removeArea(a)}
+                    className="rounded p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+                    aria-label={`Remove ${a}`}
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
         </div>
+
 
         <button
           disabled={!enabled}
