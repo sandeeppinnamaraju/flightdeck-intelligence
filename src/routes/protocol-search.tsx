@@ -1,16 +1,10 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { Search, ArrowLeft, X } from "lucide-react";
+import { Search, ArrowLeft, X, ChevronDown, Check } from "lucide-react";
 import { therapeuticAreas, protocolResults } from "@/lib/data";
 import { PhaseBadge } from "@/components/badges";
 import { cn } from "@/lib/utils";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 type SearchMode = "input" | "results";
 
