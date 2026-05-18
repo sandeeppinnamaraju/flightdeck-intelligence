@@ -1,0 +1,83 @@
+export type Performance = "On Track" | "At Risk" | "Off Track" | "—";
+export type Priority = "High" | "Medium" | "Low";
+export type Status = "Recruiting" | "Planned" | "Follow-up";
+
+export interface Study {
+  id: string;
+  phase: "Ph I" | "Ph II" | "Ph III" | "Ph IV";
+  therapeuticArea: string;
+  indication: string;
+  title: string;
+  portfolio: string;
+  program: string;
+  status: Status;
+  priority: Priority;
+  target: number;
+  actual: number;
+  percentVsPlan: number | null;
+  countries: number;
+  sites: number;
+  performance: Performance;
+  trend: number[];
+}
+
+const t = (a: number, b: number, n = 6) =>
+  Array.from({ length: n }, (_, i) => Math.round(a + ((b - a) * i) / (n - 1)));
+
+export const studies: Study[] = [
+  { id: "ST-2024-002", phase: "Ph I", therapeuticArea: "Oncology", indication: "Non-small Cell Lung Cancer (NSCLC)", title: "Phase I/II First-In-Human Open-label Trial to Assess Safety and Efficacy of STX-241 in Participants With Locally Advanced NSCLC", portfolio: "Oncology Portfolio", program: "ZPH-505", status: "Recruiting", priority: "High", target: 171, actual: 58, percentVsPlan: 78.4, countries: 5, sites: 16, performance: "Off Track", trend: t(10, 58) },
+  { id: "ST-2024-003", phase: "Ph II", therapeuticArea: "Oncology", indication: "Malignant Pleural Mesothelioma", title: "Hemithoracic Irradiation With Proton Therapy in Malignant Pleural Mesothelioma", portfolio: "Oncology Portfolio", program: "OMP-770", status: "Recruiting", priority: "Low", target: 148, actual: 49, percentVsPlan: 106.5, countries: 6, sites: 30, performance: "On Track", trend: t(5, 49) },
+  { id: "ST-2024-004", phase: "Ph II", therapeuticArea: "Oncology", indication: "Marginal Zone Lymphoma (MZL)", title: "A Prospective Study to Evaluate the Efficacy and Safety of MZL-IPI Risk-adapted Targeted Therapy", portfolio: "Oncology Portfolio", program: "GEN-330", status: "Recruiting", priority: "Medium", target: 145, actual: 26, percentVsPlan: 76.5, countries: 7, sites: 27, performance: "Off Track", trend: t(2, 26) },
+  { id: "ST-2024-005", phase: "Ph II", therapeuticArea: "Oncology", indication: "Newly Diagnosed Multiple Myeloma", title: "Newly Diagnosed Multiple Myeloma Combination Therapy Study", portfolio: "Oncology Portfolio", program: "PHX-873", status: "Recruiting", priority: "Medium", target: 100, actual: 71, percentVsPlan: 75.5, countries: 6, sites: 20, performance: "Off Track", trend: t(20, 71) },
+  { id: "ST-2024-006", phase: "Ph II", therapeuticArea: "Oncology", indication: "NSCLC", title: "Open-label NSCLC second-line study", portfolio: "Oncology Portfolio", program: "NXG-810", status: "Recruiting", priority: "Medium", target: 70, actual: 55, percentVsPlan: 77.9, countries: 4, sites: 17, performance: "Off Track", trend: t(15, 55) },
+  { id: "ST-2024-007", phase: "Ph II", therapeuticArea: "Oncology", indication: "Smoking Cessation", title: "Smoking cessation interventional trial in oncology survivors", portfolio: "Oncology Portfolio", program: "CRX-255", status: "Planned", priority: "High", target: 50, actual: 0, percentVsPlan: null, countries: 6, sites: 22, performance: "—", trend: t(0, 0) },
+  { id: "ST-2024-008", phase: "Ph II", therapeuticArea: "Cardiovascular", indication: "Coronary Artery Stenosis", title: "Coronary artery stent comparison study", portfolio: "Cardiovascular Portfolio", program: "VRD-698", status: "Recruiting", priority: "High", target: 50, actual: 41, percentVsPlan: 83.7, countries: 3, sites: 10, performance: "At Risk", trend: t(8, 41) },
+  { id: "ST-2024-009", phase: "Ph IV", therapeuticArea: "Cardiovascular", indication: "Coronary Arterial Disease", title: "Post-marketing surveillance of antiplatelet regimen", portfolio: "Cardiovascular Portfolio", program: "GEN-887", status: "Recruiting", priority: "Medium", target: 300, actual: 14, percentVsPlan: 77.8, countries: 5, sites: 12, performance: "Off Track", trend: t(2, 14) },
+  { id: "ST-2024-010", phase: "Ph II", therapeuticArea: "Cardiovascular", indication: "Heart Failure", title: "Heart Failure with Preserved Ejection Fraction trial", portfolio: "Cardiovascular Portfolio", program: "APX-926", status: "Recruiting", priority: "Medium", target: 5000, actual: 2480, percentVsPlan: 85.9, countries: 3, sites: 6, performance: "At Risk", trend: t(400, 2480) },
+  { id: "ST-2024-011", phase: "Ph II", therapeuticArea: "Cardiovascular", indication: "Cirrhosis, Liver", title: "Cirrhotic cardiomyopathy outcomes study", portfolio: "Cardiovascular Portfolio", program: "MED-892", status: "Recruiting", priority: "High", target: 140, actual: 5, percentVsPlan: 71.4, countries: 4, sites: 17, performance: "Off Track", trend: t(0, 5) },
+  { id: "ST-2024-012", phase: "Ph II", therapeuticArea: "Cardiovascular", indication: "Heart Failure With Preserved EF", title: "HFpEF biomarker enrichment study", portfolio: "Cardiovascular Portfolio", program: "CRX-750", status: "Recruiting", priority: "Low", target: 30, actual: 17, percentVsPlan: 73.9, countries: 6, sites: 28, performance: "Off Track", trend: t(2, 17) },
+  { id: "ST-2024-013", phase: "Ph II", therapeuticArea: "Cardiovascular", indication: "End Stage Kidney Disease", title: "ESKD cardiovascular outcomes prevention trial", portfolio: "Cardiovascular Portfolio", program: "APX-463", status: "Planned", priority: "Medium", target: 9, actual: 0, percentVsPlan: null, countries: 4, sites: 8, performance: "—", trend: t(0, 0) },
+  { id: "ST-2024-014", phase: "Ph II", therapeuticArea: "Neurology", indication: "Gait Disorders, Neurologic", title: "Neurologic gait disorder rehabilitation trial", portfolio: "Neurology Portfolio", program: "NXG-793", status: "Recruiting", priority: "Medium", target: 30, actual: 10, percentVsPlan: 90.9, countries: 8, sites: 20, performance: "At Risk", trend: t(2, 10) },
+  { id: "ST-2024-015", phase: "Ph II", therapeuticArea: "Neurology", indication: "Huntington Disease", title: "Huntington disease biomarker progression study", portfolio: "Neurology Portfolio", program: "CRX-271", status: "Recruiting", priority: "Low", target: 136, actual: 15, percentVsPlan: 88.2, countries: 7, sites: 28, performance: "At Risk", trend: t(2, 15) },
+  { id: "ST-2024-016", phase: "Ph II", therapeuticArea: "Neurology", indication: "Parkinson Disease, Idiopathic", title: "Parkinson disease disease-modifying therapy", portfolio: "Neurology Portfolio", program: "APX-563", status: "Recruiting", priority: "Medium", target: 90, actual: 45, percentVsPlan: 88.2, countries: 7, sites: 22, performance: "At Risk", trend: t(5, 45) },
+  { id: "ST-2024-017", phase: "Ph II", therapeuticArea: "Neurology", indication: "Care Giving Burden", title: "Caregiver burden intervention trial", portfolio: "Neurology Portfolio", program: "VRD-384", status: "Recruiting", priority: "Medium", target: 60, actual: 9, percentVsPlan: 64.3, countries: 3, sites: 9, performance: "Off Track", trend: t(1, 9) },
+  { id: "ST-2024-018", phase: "Ph II", therapeuticArea: "Neurology", indication: "Multiple Sclerosis", title: "Multiple sclerosis remyelination Phase II study", portfolio: "Neurology Portfolio", program: "OMP-574", status: "Recruiting", priority: "Medium", target: 24, actual: 24, percentVsPlan: 104.3, countries: 3, sites: 15, performance: "On Track", trend: t(3, 24) },
+  { id: "ST-2024-019", phase: "Ph II", therapeuticArea: "Neurology", indication: "Migraine Disorders", title: "Migraine prevention long-term safety study", portfolio: "Neurology Portfolio", program: "PHX-851", status: "Planned", priority: "Low", target: 396, actual: 0, percentVsPlan: null, countries: 6, sites: 26, performance: "—", trend: t(0, 0) },
+  { id: "ST-2024-020", phase: "Ph I", therapeuticArea: "Immunology", indication: "Systemic Lupus Erythematosus", title: "First-in-human SLE biologic dose escalation", portfolio: "Immunology Portfolio", program: "VRD-975", status: "Recruiting", priority: "Medium", target: 15, actual: 12, percentVsPlan: 85.7, countries: 4, sites: 17, performance: "At Risk", trend: t(2, 12) },
+  { id: "ST-2025-021", phase: "Ph II", therapeuticArea: "Immunology", indication: "Primary Sjögren's Syndrome", title: "Primary Sjögren's syndrome efficacy trial", portfolio: "Immunology Portfolio", program: "GEN-769", status: "Recruiting", priority: "High", target: 185, actual: 185, percentVsPlan: 102.2, countries: 5, sites: 25, performance: "On Track", trend: t(30, 185) },
+  { id: "ST-2025-022", phase: "Ph II", therapeuticArea: "Immunology", indication: "Tuberculosis", title: "Tuberculosis host-directed therapy trial", portfolio: "Immunology Portfolio", program: "APX-521", status: "Recruiting", priority: "Medium", target: 60, actual: 60, percentVsPlan: 96.5, countries: 6, sites: 23, performance: "On Track", trend: t(10, 60) },
+  { id: "ST-2025-023", phase: "Ph II", therapeuticArea: "Immunology", indication: "SLE", title: "Systemic lupus comparative effectiveness study", portfolio: "Immunology Portfolio", program: "APX-126", status: "Recruiting", priority: "Medium", target: 1500, actual: 1270, percentVsPlan: 87.9, countries: 6, sites: 15, performance: "At Risk", trend: t(200, 1270) },
+  { id: "ST-2025-024", phase: "Ph II", therapeuticArea: "Immunology", indication: "Dry Eye Syndrome", title: "Dry eye syndrome topical biologic study", portfolio: "Immunology Portfolio", program: "PHX-287", status: "Recruiting", priority: "Medium", target: 220, actual: 135, percentVsPlan: 73.0, countries: 5, sites: 19, performance: "Off Track", trend: t(20, 135) },
+  { id: "ST-2025-025", phase: "Ph II", therapeuticArea: "Immunology", indication: "Refractory Systemic Vasculitis", title: "Refractory vasculitis investigational therapy", portfolio: "Immunology Portfolio", program: "MED-158", status: "Planned", priority: "Medium", target: 6, actual: 0, percentVsPlan: null, countries: 8, sites: 37, performance: "—", trend: t(0, 0) },
+  { id: "ST-2025-026", phase: "Ph I", therapeuticArea: "Respiratory", indication: "Asthma", title: "Asthma biologic Phase I safety study", portfolio: "Respiratory Portfolio", program: "MED-384", status: "Recruiting", priority: "High", target: 260, actual: 148, percentVsPlan: 69.5, countries: 6, sites: 22, performance: "Off Track", trend: t(20, 148) },
+];
+
+export const therapeuticAreas = [
+  "Cardiovascular", "Dermatology", "Endocrinology", "Gastroenterology",
+  "Hematology", "Immunology", "Infectious Disease", "Nephrology",
+  "Neurology", "Oncology", "Respiratory", "Rheumatology",
+];
+
+export interface ProtocolResult {
+  rank: number;
+  id: string;
+  phase?: "PHASE I" | "PHASE II" | "PHASE III";
+  category: string;
+  title: string;
+  indication: string;
+  bullets: string[];
+  match: number;
+}
+
+export const protocolResults: ProtocolResult[] = [
+  { rank: 1, id: "PRT-3001", phase: "PHASE III", category: "Respiratory", title: "Phase III Study of BIO-526 in Severe Eosinophilic Asthma", indication: "Eosinophilic Asthma", bullets: ["Adults aged 18 years or older", "Confirmed diagnosis of severe eosinophilic asthma", "Recent investigational therapy within 30 days"], match: 91 },
+  { rank: 2, id: "NCT04598555", category: "Respiratory", title: "A Multi-centre Multi-country Prospective obseRvatIonal Study on Patterns of Care of Mild Asthmatic patiEnts", indication: "Asthma", bullets: ["Adult subject (aged ≥ 18 years) up to 75 years", "Subject with confirmed asthma diagnosis", "Subject enrolled in experimental (interventional) clinical trials, or receiving experimental…"], match: 63 },
+  { rank: 3, id: "PRT-3002", phase: "PHASE III", category: "Respiratory", title: "Phase III Maintenance Therapy Study in Uncontrolled Asthma", indication: "Eosinophilic Asthma", bullets: ["Adults with uncontrolled asthma despite maintenance therapy", "Stable controller medication use for at least 4 weeks", "Recent major respiratory infection"], match: 54 },
+  { rank: 4, id: "PRT-3003", phase: "PHASE II", category: "Respiratory", title: "Phase II COPD Airway Limitation Study", indication: "COPD", bullets: ["Adults with confirmed COPD and impaired lung function", "Primary asthma diagnosis"], match: 50 },
+  { rank: 5, id: "PRT-3004", phase: "PHASE II", category: "Respiratory", title: "Phase II Add-on Anti-IL5 in Eosinophilic Asthma", indication: "Eosinophilic Asthma", bullets: ["Blood eosinophils ≥ 300 cells/µL", "Two or more exacerbations in prior year", "On stable inhaled corticosteroid"], match: 47 },
+  { rank: 6, id: "NCT05231887", category: "Respiratory", title: "Real-world Outcomes of Biologic Therapies in Severe Asthma", indication: "Severe Asthma", bullets: ["Adults receiving biologic add-on therapy", "Documented exacerbation history", "12-month follow-up"], match: 44 },
+  { rank: 7, id: "PRT-3005", phase: "PHASE III", category: "Respiratory", title: "Long-term Safety Extension in Severe Asthma", indication: "Severe Asthma", bullets: ["Completion of pivotal Phase III parent study", "Continued biologic therapy", "Annual safety review"], match: 41 },
+  { rank: 8, id: "NCT04992211", category: "Respiratory", title: "Patient-Reported Outcomes in Adult Asthma Cohort", indication: "Asthma", bullets: ["Adults with physician-confirmed asthma", "Quarterly PRO collection", "Quality of life endpoints"], match: 38 },
+  { rank: 9, id: "PRT-3006", phase: "PHASE II", category: "Respiratory", title: "Steroid-Sparing Biologic in Oral Corticosteroid-Dependent Asthma", indication: "OCS-dependent Asthma", bullets: ["Daily oral corticosteroid use ≥ 6 months", "Goal of OCS reduction ≥ 50%", "Exacerbation rate as secondary endpoint"], match: 36 },
+  { rank: 10, id: "NCT05010101", category: "Respiratory", title: "Observational Registry of Uncontrolled Asthma Outcomes", indication: "Uncontrolled Asthma", bullets: ["Patients failing standard-of-care", "Longitudinal observational design", "5-year follow-up"], match: 32 },
+];
