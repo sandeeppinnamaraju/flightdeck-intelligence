@@ -30,16 +30,20 @@ function InputView() {
   const navigate = useNavigate({ from: "/protocol-search" });
   const [summary, setSummary] = useState("");
   const [selected, setSelected] = useState<string[]>([]);
+  const [open, setOpen] = useState(false);
 
   const max = 500;
   const enabled = summary.trim().length > 0;
 
-  const addArea = (a: string) => {
-    if (!selected.includes(a)) setSelected([...selected, a]);
-  };
+  const toggleArea = (a: string) =>
+    setSelected((s) => (s.includes(a) ? s.filter((x) => x !== a) : [...s, a]));
   const removeArea = (a: string) => setSelected(selected.filter((x) => x !== a));
+  const clearAll = () => setSelected([]);
 
-  const available = therapeuticAreas.filter((a) => !selected.includes(a));
+  const triggerLabel =
+    selected.length === 0
+      ? "All Therapeutic Areas"
+      : `${selected.length} selected`;
 
   return (
     <main className="mx-auto max-w-[1600px] px-6 py-12">
@@ -74,26 +78,65 @@ function InputView() {
           </label>
 
           <div className="mt-2">
-            <Select
-              value=""
-              onValueChange={(v) => addArea(v)}
-              disabled={available.length === 0}
-            >
-              <SelectTrigger className="h-10 w-full sm:w-[280px]">
-                <SelectValue
-                  placeholder={
-                    available.length === 0 ? "All areas selected" : "Select a therapeutic area..."
-                  }
-                />
-              </SelectTrigger>
-              <SelectContent>
-                {available.map((a) => (
-                  <SelectItem key={a} value={a}>
-                    {a}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Popover open={open} onOpenChange={setOpen}>
+              <PopoverTrigger asChild>
+                <button
+                  type="button"
+                  className="inline-flex h-10 min-w-[260px] items-center justify-between gap-2 rounded-lg border border-input bg-card px-3 text-sm text-foreground hover:bg-muted"
+                >
+                  {triggerLabel}
+                  <ChevronDown
+                    className={cn(
+                      "h-4 w-4 text-muted-foreground transition-transform",
+                      open && "rotate-180",
+                    )}
+                  />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent
+                align="start"
+                sideOffset={6}
+                className="w-[280px] p-0"
+              >
+                <div className="flex items-center justify-between border-b border-border px-3 py-2">
+                  <span className="text-xs font-medium text-muted-foreground">
+                    {selected.length} selected
+                  </span>
+                  {selected.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={clearAll}
+                      className="text-xs font-medium text-primary hover:underline"
+                    >
+                      Clear all
+                    </button>
+                  )}
+                </div>
+                <div className="max-h-72 overflow-auto py-1">
+                  {therapeuticAreas.map((a) => {
+                    const checked = selected.includes(a);
+                    return (
+                      <label
+                        key={a}
+                        className="flex cursor-pointer items-center gap-2.5 px-3 py-1.5 text-sm text-foreground hover:bg-muted"
+                      >
+                        <span
+                          className={cn(
+                            "flex h-4 w-4 items-center justify-center rounded border",
+                            checked
+                              ? "border-primary bg-primary text-primary-foreground"
+                              : "border-input bg-card",
+                          )}
+                        >
+                          {checked && <Check className="h-3 w-3" strokeWidth={3} />}
+                        </span>
+                        <span className="flex-1">{a}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
 
           {selected.length > 0 && (
@@ -117,6 +160,7 @@ function InputView() {
             </div>
           )}
         </div>
+
 
 
         <button
