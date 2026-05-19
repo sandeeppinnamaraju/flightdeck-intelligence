@@ -1,15 +1,137 @@
-import { Search, Calendar, ChevronDown } from "lucide-react";
+import { useState } from "react";
+import { Search, Calendar, ChevronDown, Check, X } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { therapeuticAreas } from "@/lib/data";
+import { cn } from "@/lib/utils";
 
-const filters = [
-  "Therapeutic Area",
-  "Phase",
-  "Study Status",
-  "Portfolio",
-  "Program",
-  "Region",
+const phases = ["Ph I", "Ph II", "Ph III", "Ph IV"];
+const statuses = ["Recruiting", "Planned", "Follow-up"];
+const portfolios = [
+  "Oncology Portfolio",
+  "Cardiovascular Portfolio",
+  "Neurology Portfolio",
+  "Immunology Portfolio",
+  "Respiratory Portfolio",
 ];
+const programs = ["ZPH-505", "OMP-770", "GEN-330", "PHX-873", "NXG-810", "CRX-255", "VRD-698"];
+const regions = ["North America", "EU", "APAC", "LATAM", "MEA"];
+const dateOptions = ["Last 30 days", "Last 90 days", "YTD", "Last 12 months", "All time"];
+
+function SingleSelect({
+  label,
+  options,
+  value,
+  onChange,
+}: {
+  label: string;
+  options: string[];
+  value: string | null;
+  onChange: (v: string | null) => void;
+}) {
+  return (
+    <Select value={value ?? undefined} onValueChange={(v) => onChange(v === "__all__" ? null : v)}>
+      <SelectTrigger className="h-9 w-auto gap-1.5 rounded-lg border border-input bg-card px-3 text-sm">
+        <SelectValue placeholder={label}>
+          {value ? (
+            <span>
+              <span className="text-muted-foreground">{label}:</span>{" "}
+              <span className="font-medium">{value}</span>
+            </span>
+          ) : (
+            label
+          )}
+        </SelectValue>
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="__all__">All</SelectItem>
+        {options.map((o) => (
+          <SelectItem key={o} value={o}>
+            {o}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+}
+
+function MultiSelectTA({
+  selected,
+  onChange,
+}: {
+  selected: string[];
+  onChange: (v: string[]) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const toggle = (a: string) =>
+    onChange(selected.includes(a) ? selected.filter((s) => s !== a) : [...selected, a]);
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <button type="button" className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-input bg-card px-3 text-sm text-foreground hover:bg-muted">
+          <span className="text-muted-foreground">Therapeutic Area</span>
+          {selected.length > 0 && (
+            <span className="rounded-full bg-primary px-1.5 py-0.5 text-[11px] font-semibold text-primary-foreground">
+              {selected.length}
+            </span>
+          )}
+          <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent align="start" className="w-64 p-2">
+        <div className="mb-1 flex items-center justify-between px-1 pb-1">
+          <span className="text-xs font-medium text-muted-foreground">
+            {selected.length} selected
+          </span>
+          {selected.length > 0 && (
+            <button
+              onClick={() => onChange([])}
+              className="text-xs font-medium text-primary hover:underline"
+            >
+              Clear
+            </button>
+          )}
+        </div>
+        <div className="max-h-64 overflow-y-auto">
+          {therapeuticAreas.map((a) => {
+            const isSel = selected.includes(a);
+            return (
+              <button
+                key={a}
+                onClick={() => toggle(a)}
+                className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm hover:bg-muted"
+              >
+                <span
+                  className={cn(
+                    "flex h-4 w-4 items-center justify-center rounded border",
+                    isSel ? "border-primary bg-primary text-primary-foreground" : "border-input",
+                  )}
+                >
+                  {isSel && <Check className="h-3 w-3" />}
+                </span>
+                {a}
+              </button>
+            );
+          })}
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
 
 export function PortfolioFilters({ total }: { total: number }) {
+  const [areas, setAreas] = useState<string[]>([]);
+  const [phase, setPhase] = useState<string | null>(null);
+  const [status, setStatus] = useState<string | null>(null);
+  const [portfolio, setPortfolio] = useState<string | null>(null);
+  const [program, setProgram] = useState<string | null>(null);
+  const [region, setRegion] = useState<string | null>(null);
+  const [dateRange, setDateRange] = useState<string | null>(null);
+
+  const hasAny =
+    areas.length > 0 || phase || status || portfolio || program || region || dateRange;
+
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-4">
@@ -27,21 +149,79 @@ export function PortfolioFilters({ total }: { total: number }) {
         </p>
       </div>
       <div className="flex flex-wrap items-center gap-2">
-        {filters.map((f) => (
+        <MultiSelectTA selected={areas} onChange={setAreas} />
+        <SingleSelect label="Phase" options={phases} value={phase} onChange={setPhase} />
+        <SingleSelect label="Study Status" options={statuses} value={status} onChange={setStatus} />
+        <SingleSelect
+          label="Portfolio"
+          options={portfolios}
+          value={portfolio}
+          onChange={setPortfolio}
+        />
+        <SingleSelect label="Program" options={programs} value={program} onChange={setProgram} />
+        <SingleSelect label="Region" options={regions} value={region} onChange={setRegion} />
+        <Select
+          value={dateRange ?? undefined}
+          onValueChange={(v) => setDateRange(v === "__all__" ? null : v)}
+        >
+          <SelectTrigger className="h-9 w-auto gap-1.5 rounded-lg border border-input bg-card px-3 text-sm">
+            <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+            <SelectValue placeholder="FPI / LPO">
+              {dateRange ? (
+                <span>
+                  <span className="text-muted-foreground">FPI / LPO:</span>{" "}
+                  <span className="font-medium">{dateRange}</span>
+                </span>
+              ) : (
+                "FPI / LPO"
+              )}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="__all__">All time</SelectItem>
+            {dateOptions.map((o) => (
+              <SelectItem key={o} value={o}>
+                {o}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {hasAny && (
           <button
-            key={f}
-            className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-input bg-card px-3 text-sm text-foreground hover:bg-muted"
+            onClick={() => {
+              setAreas([]);
+              setPhase(null);
+              setStatus(null);
+              setPortfolio(null);
+              setProgram(null);
+              setRegion(null);
+              setDateRange(null);
+            }}
+            className="inline-flex h-9 items-center gap-1 rounded-lg px-2 text-sm text-muted-foreground hover:text-foreground"
           >
-            {f}
-            <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+            <X className="h-3.5 w-3.5" />
+            Clear all
           </button>
-        ))}
-        <button className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-input bg-card px-3 text-sm text-foreground hover:bg-muted">
-          <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-          FPI / LPO
-          <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
-        </button>
+        )}
       </div>
+      {areas.length > 0 && (
+        <div className="flex flex-wrap items-center gap-1.5">
+          {areas.map((a) => (
+            <span
+              key={a}
+              className="inline-flex items-center gap-1 rounded-full border border-input bg-card px-2 py-0.5 text-xs text-foreground"
+            >
+              {a}
+              <button
+                onClick={() => setAreas(areas.filter((x) => x !== a))}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
