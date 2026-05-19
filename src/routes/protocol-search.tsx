@@ -559,14 +559,14 @@ function ExplainMatch({ r }: { r: ProtocolResult }) {
 /* ----------------------------- DETAIL VIEW ------------------------------ */
 
 const SITES = [
-  { name: "Sarah Cannon Research Institute", country: "United States", target: 23, actual: 8, planned: 45, actualMo: 45, tier: "Low" },
-  { name: "Oncology Consultants (OC) — Houston", country: "United States", target: 14, actual: 4, planned: 45, actualMo: 45, tier: "Low" },
-  { name: "Shanghai East Hospital, Tongji", country: "China", target: 20, actual: 6, planned: 45, actualMo: 45, tier: "Low" },
-  { name: "Tianjin Medical University Cancer Inst.", country: "China", target: 14, actual: 5, planned: 45, actualMo: 45, tier: "Low" },
-  { name: "Centre Léon Bérard", country: "France", target: 35, actual: 9, planned: 45, actualMo: 45, tier: "Low" },
-  { name: "CHU Hôpital de la Timone", country: "France", target: 26, actual: 8, planned: 45, actualMo: 45, tier: "Low" },
-  { name: "Institut de Cancérologie de l'Ouest", country: "France", target: 26, actual: 10, planned: 45, actualMo: 45, tier: "Low" },
-  { name: "Institut Universitaire du Cancer", country: "France", target: 13, actual: 4, planned: 45, actualMo: 45, tier: "Low" },
+  { name: "Sarah Cannon Research Institute", country: "United States", target: 23, actual: 8, planned: 45, actualMo: 45, siteType: "Academic Medical Center", archetype: "Anchor" },
+  { name: "Oncology Consultants (OC) — Houston", country: "United States", target: 14, actual: 4, planned: 45, actualMo: 45, siteType: "Community Hospital", archetype: "Emerging Partner" },
+  { name: "Shanghai East Hospital, Tongji", country: "China", target: 20, actual: 6, planned: 45, actualMo: 45, siteType: "Research Network", archetype: "Competitive Battleground" },
+  { name: "Tianjin Medical University Cancer Inst.", country: "China", target: 14, actual: 5, planned: 45, actualMo: 45, siteType: "Academic Medical Center", archetype: "Anchor" },
+  { name: "Centre Léon Bérard", country: "France", target: 35, actual: 9, planned: 45, actualMo: 45, siteType: "Community Hospital", archetype: "Emerging Partner" },
+  { name: "CHU Hôpital de la Timone", country: "France", target: 26, actual: 8, planned: 45, actualMo: 45, siteType: null, archetype: null },
+  { name: "Institut de Cancérologie de l'Ouest", country: "France", target: 26, actual: 10, planned: 45, actualMo: 45, siteType: null, archetype: null },
+  { name: "Institut Universitaire du Cancer", country: "France", target: 13, actual: 4, planned: 45, actualMo: 45, siteType: null, archetype: null },
 ];
 
 function DetailView({ id }: { id?: string }) {
