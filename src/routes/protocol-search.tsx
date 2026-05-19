@@ -740,10 +740,10 @@ function DetailView({ id }: { id?: string }) {
                 return (
                   <tr key={s.name} className="border-b border-border last:border-0 hover:bg-muted/30">
                     <td className="px-6 py-3 font-medium text-foreground">{s.name}</td>
-                    <td className="py-3 text-muted-foreground">{s.country}</td>
-                    <td className="py-3 text-right tabular-nums">{s.target}</td>
-                    <td className="py-3 text-right tabular-nums">{s.actual}</td>
-                    <td className="py-3">
+                    <td className="px-4 py-3 text-muted-foreground">{s.country}</td>
+                    <td className="px-4 py-3 text-right tabular-nums">{s.target}</td>
+                    <td className="px-4 py-3 text-right tabular-nums">{s.actual}</td>
+                    <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
                         <div className="h-1.5 w-20 overflow-hidden rounded-full bg-muted">
                           <div
@@ -768,9 +768,9 @@ function DetailView({ id }: { id?: string }) {
                         </span>
                       </div>
                     </td>
-                    <td className="py-3 text-right tabular-nums">{s.planned}</td>
-                    <td className="py-3 text-right tabular-nums">{s.actualMo}</td>
-                    <td className="py-3">
+                    <td className="px-4 py-3 text-right tabular-nums">{s.planned}</td>
+                    <td className="px-4 py-3 text-right tabular-nums">{s.actualMo}</td>
+                    <td className="px-4 py-3">
                       {s.siteType ? (
                         <span className="text-xs text-foreground">{s.siteType}</span>
                       ) : (
