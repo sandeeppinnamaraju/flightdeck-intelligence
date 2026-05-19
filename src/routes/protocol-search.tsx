@@ -389,7 +389,7 @@ function LegendDot({ color, label }: { color: string; label: string }) {
 function ResultCard({ r }: { r: ProtocolResult }) {
   const tier = matchTier(r.match);
   const s = tierStyles(tier);
-  const [explainOpen, setExplainOpen] = useState(false);
+  
 
   return (
     <article
