@@ -102,16 +102,85 @@ function InputView() {
         <div className="mt-4 flex flex-wrap gap-2">
           <StatChip icon={<Database className="h-3.5 w-3.5" />} label="36 protocols indexed" />
           <StatChip icon={<Layers className="h-3.5 w-3.5" />} label="6 therapy areas" />
-          <StatChip icon={<Cpu className="h-3.5 w-3.5" />} label="Vector AI · all-MiniLM-L6-v2" />
         </div>
       </section>
 
       {/* Form card */}
       <section className="mt-6 rounded-2xl border border-border bg-card p-6 shadow-card">
+        {/* Therapeutic Area */}
+        <div>
+          <FieldLabel icon={<Filter className="h-4 w-4 text-muted-foreground" />} optional>
+            Therapeutic Area
+            <span className="ml-1 font-normal text-muted-foreground">— narrows results</span>
+          </FieldLabel>
+
+          <div className="mt-2">
+            <Popover open={open} onOpenChange={setOpen}>
+              <PopoverTrigger asChild>
+                <button
+                  type="button"
+                  className="inline-flex h-10 min-w-[260px] items-center justify-between gap-2 rounded-lg border border-input bg-card px-3 text-sm text-foreground hover:bg-muted"
+                >
+                  {triggerLabel}
+                  <ChevronDown
+                    className={cn(
+                      "h-4 w-4 text-muted-foreground transition-transform",
+                      open && "rotate-180",
+                    )}
+                  />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent align="start" sideOffset={6} className="w-[280px] p-0">
+                <div className="flex items-center justify-between border-b border-border px-3 py-2">
+                  <span className="text-xs font-medium text-muted-foreground">
+                    {selected.length} selected
+                  </span>
+                  {selected.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={clearAll}
+                      className="text-xs font-medium text-primary hover:underline"
+                    >
+                      Clear all
+                    </button>
+                  )}
+                </div>
+                <div className="max-h-72 overflow-auto py-1">
+                  {therapeuticAreas.map((a) => {
+                    const checked = selected.includes(a);
+                    return (
+                      <button
+                        key={a}
+                        type="button"
+                        onClick={() => toggleArea(a)}
+                        className="flex w-full cursor-pointer items-center gap-2.5 px-3 py-1.5 text-left text-sm text-foreground hover:bg-muted"
+                      >
+                        <span
+                          className={cn(
+                            "flex h-4 w-4 items-center justify-center rounded border",
+                            checked
+                              ? "border-primary bg-primary text-primary-foreground"
+                              : "border-input bg-card",
+                          )}
+                        >
+                          {checked && <Check className="h-3 w-3" strokeWidth={3} />}
+                        </span>
+                        <span className="flex-1">{a}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </PopoverContent>
+            </Popover>
+          </div>
+        </div>
+
         {/* Summary */}
-        <FieldLabel icon={<FileText className="h-4 w-4 text-primary" />} required>
-          Protocol Summary
-        </FieldLabel>
+        <div className="mt-6">
+          <FieldLabel icon={<FileText className="h-4 w-4 text-primary" />} required>
+            Protocol Summary
+          </FieldLabel>
+        </div>
         <div className="relative mt-2">
           <textarea
             value={summary}
@@ -178,74 +247,6 @@ function InputView() {
                 {exclusion.length}/{max}
               </span>
             </div>
-          </div>
-        </div>
-
-        {/* Therapeutic Area */}
-        <div className="mt-6">
-          <FieldLabel icon={<Filter className="h-4 w-4 text-muted-foreground" />} optional>
-            Therapeutic Area
-            <span className="ml-1 font-normal text-muted-foreground">— narrows results</span>
-          </FieldLabel>
-
-          <div className="mt-2">
-            <Popover open={open} onOpenChange={setOpen}>
-              <PopoverTrigger asChild>
-                <button
-                  type="button"
-                  className="inline-flex h-10 min-w-[260px] items-center justify-between gap-2 rounded-lg border border-input bg-card px-3 text-sm text-foreground hover:bg-muted"
-                >
-                  {triggerLabel}
-                  <ChevronDown
-                    className={cn(
-                      "h-4 w-4 text-muted-foreground transition-transform",
-                      open && "rotate-180",
-                    )}
-                  />
-                </button>
-              </PopoverTrigger>
-              <PopoverContent align="start" sideOffset={6} className="w-[280px] p-0">
-                <div className="flex items-center justify-between border-b border-border px-3 py-2">
-                  <span className="text-xs font-medium text-muted-foreground">
-                    {selected.length} selected
-                  </span>
-                  {selected.length > 0 && (
-                    <button
-                      type="button"
-                      onClick={clearAll}
-                      className="text-xs font-medium text-primary hover:underline"
-                    >
-                      Clear all
-                    </button>
-                  )}
-                </div>
-                <div className="max-h-72 overflow-auto py-1">
-                  {therapeuticAreas.map((a) => {
-                    const checked = selected.includes(a);
-                    return (
-                      <button
-                        key={a}
-                        type="button"
-                        onClick={() => toggleArea(a)}
-                        className="flex w-full cursor-pointer items-center gap-2.5 px-3 py-1.5 text-left text-sm text-foreground hover:bg-muted"
-                      >
-                        <span
-                          className={cn(
-                            "flex h-4 w-4 items-center justify-center rounded border",
-                            checked
-                              ? "border-primary bg-primary text-primary-foreground"
-                              : "border-input bg-card",
-                          )}
-                        >
-                          {checked && <Check className="h-3 w-3" strokeWidth={3} />}
-                        </span>
-                        <span className="flex-1">{a}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </PopoverContent>
-            </Popover>
           </div>
         </div>
 
