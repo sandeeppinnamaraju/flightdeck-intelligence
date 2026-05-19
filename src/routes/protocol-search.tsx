@@ -444,23 +444,8 @@ function ResultCard({ r }: { r: ProtocolResult }) {
           />
         </div>
 
-        {/* Explain match */}
-        <div className="mt-4 flex items-center justify-between">
-          <Popover open={explainOpen} onOpenChange={setExplainOpen}>
-            <PopoverTrigger asChild>
-              <button
-                type="button"
-                className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
-              >
-                <Sparkles className="h-4 w-4" />
-                Explain match with AI
-              </button>
-            </PopoverTrigger>
-            <PopoverContent align="start" className="w-96 p-0">
-              <ExplainMatch r={r} />
-            </PopoverContent>
-          </Popover>
-
+        {/* Footer */}
+        <div className="mt-4 flex items-center justify-end">
           <Link
             to="/protocol-search"
             search={{ mode: "detail", id: r.id }}
