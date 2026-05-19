@@ -770,10 +770,21 @@ function DetailView({ id }: { id?: string }) {
                     </td>
                     <td className="py-3 text-right tabular-nums">{s.planned}</td>
                     <td className="py-3 text-right tabular-nums">{s.actualMo}</td>
+                    <td className="py-3">
+                      {s.siteType ? (
+                        <span className="text-xs text-foreground">{s.siteType}</span>
+                      ) : (
+                        <span className="text-xs text-muted-foreground/60">—</span>
+                      )}
+                    </td>
                     <td className="px-6 py-3">
-                      <span className="inline-flex rounded-md bg-danger-bg px-2 py-0.5 text-[11px] font-semibold text-danger-foreground">
-                        {s.tier}
-                      </span>
+                      {s.archetype ? (
+                        <span className="inline-flex rounded-md bg-accent px-2 py-0.5 text-[11px] font-semibold text-accent-foreground">
+                          {s.archetype}
+                        </span>
+                      ) : (
+                        <span className="text-xs text-muted-foreground/60">—</span>
+                      )}
                     </td>
                   </tr>
                 );
