@@ -30,7 +30,7 @@ function SingleSelect({
   onChange: (v: string | null) => void;
 }) {
   return (
-    <Select value={value ?? undefined} onValueChange={(v) => onChange(v === "__all__" ? null : v)}>
+    <Select value={value ?? ""} onValueChange={(v) => onChange(v === "__all__" ? null : v)}>
       <SelectTrigger className="h-9 w-auto gap-1.5 rounded-lg border border-input bg-card px-3 text-sm">
         <SelectValue placeholder={label}>
           {value ? (
@@ -69,7 +69,7 @@ function MultiSelectTA({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <button type="button" className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-input bg-card px-3 text-sm text-foreground hover:bg-muted">
+        <button className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-input bg-card px-3 text-sm text-foreground hover:bg-muted">
           <span className="text-muted-foreground">Therapeutic Area</span>
           {selected.length > 0 && (
             <span className="rounded-full bg-primary px-1.5 py-0.5 text-[11px] font-semibold text-primary-foreground">
@@ -161,7 +161,7 @@ export function PortfolioFilters({ total }: { total: number }) {
         <SingleSelect label="Program" options={programs} value={program} onChange={setProgram} />
         <SingleSelect label="Region" options={regions} value={region} onChange={setRegion} />
         <Select
-          value={dateRange ?? undefined}
+          value={dateRange ?? ""}
           onValueChange={(v) => setDateRange(v === "__all__" ? null : v)}
         >
           <SelectTrigger className="h-9 w-auto gap-1.5 rounded-lg border border-input bg-card px-3 text-sm">

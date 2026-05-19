@@ -19,7 +19,7 @@ export const Route = createFileRoute("/")({
 });
 
 function PortfolioPage() {
-  const [view, setView] = useState<"table" | "cards">("cards");
+  const [view, setView] = useState<"table" | "cards">("table");
 
   return (
     <main className="mx-auto max-w-[1600px] px-6 py-6">
