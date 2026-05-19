@@ -730,7 +730,8 @@ function DetailView({ id }: { id?: string }) {
                 <th className="py-2.5">vs Target</th>
                 <th className="py-2.5 text-right">Planned (mo)</th>
                 <th className="py-2.5 text-right">Actual (mo)</th>
-                <th className="px-6 py-2.5">Tier</th>
+                <th className="py-2.5">Site Type</th>
+                <th className="px-6 py-2.5">Archetype</th>
               </tr>
             </thead>
             <tbody>
