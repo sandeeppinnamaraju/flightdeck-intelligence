@@ -102,7 +102,6 @@ function InputView() {
         <div className="mt-4 flex flex-wrap gap-2">
           <StatChip icon={<Database className="h-3.5 w-3.5" />} label="36 protocols indexed" />
           <StatChip icon={<Layers className="h-3.5 w-3.5" />} label="6 therapy areas" />
-          <StatChip icon={<Cpu className="h-3.5 w-3.5" />} label="Vector AI · all-MiniLM-L6-v2" />
         </div>
       </section>
 
