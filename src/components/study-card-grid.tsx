@@ -39,7 +39,7 @@ export function StudyCardGrid({ studies }: { studies: Study[] }) {
         return (
           <Link
             key={s.id}
-            to="/studies/$studyId"
+            to="/studies_/$studyId"
             params={{ studyId: s.id }}
             className="group block rounded-xl border border-border bg-card p-5 shadow-card transition-all hover:-translate-y-0.5 hover:shadow-card-hover"
           >
