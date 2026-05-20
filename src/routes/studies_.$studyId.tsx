@@ -504,8 +504,15 @@ function StudyOverviewPage() {
                       : c.status === "At Risk" ? "bg-warning"
                       : "bg-danger";
                     return (
-                      <tr key={c.name} className="border-b border-border/60 last:border-0 hover:bg-muted/40">
-                        <td className="px-4 py-3 text-muted-foreground"><ChevronRight className="h-4 w-4" /></td>
+                      <>
+                      <tr
+                        key={c.name}
+                        onClick={() => toggle(`c-${c.name}`)}
+                        className="cursor-pointer border-b border-border/60 last:border-0 hover:bg-muted/40"
+                      >
+                        <td className="px-4 py-3 text-muted-foreground">
+                          {expanded[`c-${c.name}`] ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                        </td>
                         <td className="px-4 py-3 font-medium text-foreground">{c.name}</td>
                         <td className="px-4 py-3 text-right tabular-nums text-foreground">{c.target}</td>
                         <td className="px-4 py-3 text-right tabular-nums text-foreground">{c.actual}</td>
@@ -519,6 +526,15 @@ function StudyOverviewPage() {
                           </span>
                         </td>
                       </tr>
+                      {expanded[`c-${c.name}`] && (
+                        <tr key={c.name + "-exp"} className="bg-muted/30">
+                          <td />
+                          <td colSpan={7} className="px-4 py-3">
+                            <CountryDrilldown country={c.name} sites={(detail.sites ?? []).filter((s) => s.country === c.name)} />
+                          </td>
+                        </tr>
+                      )}
+                      </>
                     );
                   })}
                   {detail.countries.length === 0 && (
