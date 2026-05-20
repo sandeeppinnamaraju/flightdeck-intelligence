@@ -171,12 +171,17 @@ export function PortfolioFilters({
   const available = useMemo(() => {
     const opts = (key: keyof FilterState, pick: (s: Study) => string, order?: string[]) =>
       uniqSorted(filterStudies(studies, filters, key).map(pick), order);
+    const regionPool = new Set<string>();
+    for (const s of filterStudies(studies, filters, "region")) {
+      for (const r of getStudyRegions(s)) regionPool.add(r);
+    }
     return {
       areas: opts("areas", (s) => s.therapeuticArea),
       phases: opts("phase", (s) => s.phase, phaseOrder),
       statuses: opts("status", (s) => s.status),
       portfolios: opts("portfolio", (s) => s.portfolio),
       programs: opts("program", (s) => s.program),
+      regions: REGIONS.filter((r) => regionPool.has(r)),
     };
   }, [studies, filters]);
 
