@@ -535,3 +535,56 @@ function ChartCard({ title, subtitle, children }: { title: string; subtitle?: st
     </div>
   );
 }
+
+function PerfPopover({
+  tone, label, title, groups,
+}: { tone: "up" | "down"; label: string; title: string; groups?: PerfGroups }) {
+  const tonePill = tone === "down"
+    ? "border-danger/30 bg-danger-bg/50 text-danger-foreground hover:bg-danger-bg"
+    : "border-success/30 bg-success-bg/50 text-success-foreground hover:bg-success-bg";
+  const Icon = tone === "down" ? TrendingDown : TrendingUp;
+  const valueColor = tone === "down" ? "text-danger-foreground" : "text-success-foreground";
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button className={cn("inline-flex items-center gap-1 rounded-md border px-2.5 py-1 text-xs font-medium transition-colors", tonePill)}>
+          <Icon className="h-3.5 w-3.5" /> {label}
+        </button>
+      </PopoverTrigger>
+      <PopoverContent align="end" className="w-80 p-0">
+        <div className={cn("flex items-center gap-1.5 border-b px-4 py-2.5 text-xs font-semibold uppercase tracking-wider", valueColor)}>
+          <Icon className="h-3.5 w-3.5" /> {title}
+        </div>
+        <div className="space-y-4 p-4">
+          {groups ? (
+            <>
+              <PerfList heading="Largest Absolute Shortfall" rows={groups.shortfall} valueColor={valueColor} />
+              <PerfList heading="Highest % Below Target" rows={groups.pctBelow} valueColor={valueColor} />
+            </>
+          ) : (
+            <p className="text-xs text-muted-foreground">No data available.</p>
+          )}
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+function PerfList({ heading, rows, valueColor }: { heading: string; rows: PerfList[]; valueColor: string }) {
+  return (
+    <div>
+      <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{heading}</p>
+      <ul className="mt-2 space-y-1.5">
+        {rows.map((r) => (
+          <li key={r.rank} className="flex items-center justify-between text-sm">
+            <span className="flex items-center gap-2 text-foreground">
+              <span className="text-muted-foreground">{r.rank}</span>
+              {r.name}
+            </span>
+            <span className={cn("font-semibold tabular-nums", valueColor)}>{r.value}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
