@@ -211,16 +211,16 @@ export function PortfolioFilters({
         </p>
       </div>
       <div className="flex flex-wrap items-center gap-2">
-        <MultiSelectTA selected={filters.areas} onChange={(v) => set("areas", v)} />
-        <SingleSelect label="Phase" options={phases} value={filters.phase} onChange={(v) => set("phase", v)} />
-        <SingleSelect label="Study Status" options={statuses} value={filters.status} onChange={(v) => set("status", v)} />
+        <MultiSelectTA options={available.areas} selected={filters.areas} onChange={(v) => set("areas", v)} />
+        <SingleSelect label="Phase" options={available.phases} value={filters.phase} onChange={(v) => set("phase", v)} />
+        <SingleSelect label="Study Status" options={available.statuses} value={filters.status} onChange={(v) => set("status", v)} />
         <SingleSelect
           label="Portfolio"
-          options={portfolios}
+          options={available.portfolios}
           value={filters.portfolio}
           onChange={(v) => set("portfolio", v)}
         />
-        <SingleSelect label="Program" options={programs} value={filters.program} onChange={(v) => set("program", v)} />
+        <SingleSelect label="Program" options={available.programs} value={filters.program} onChange={(v) => set("program", v)} />
         <SingleSelect label="Region" options={regions} value={filters.region} onChange={(v) => set("region", v)} />
         <Select
           value={filters.dateRange ?? ""}
