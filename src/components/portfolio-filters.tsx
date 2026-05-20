@@ -86,9 +86,11 @@ function SingleSelect({
 }
 
 function MultiSelectTA({
+  options,
   selected,
   onChange,
 }: {
+  options: string[];
   selected: string[];
   onChange: (v: string[]) => void;
 }) {
