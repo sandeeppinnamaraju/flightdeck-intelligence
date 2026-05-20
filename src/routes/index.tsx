@@ -1,12 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { KpiCard } from "@/components/kpi-card";
-import { PortfolioFilters } from "@/components/portfolio-filters";
+import { PortfolioFilters, emptyFilters, type FilterState } from "@/components/portfolio-filters";
 import { InsightsButton } from "@/components/insights-button";
 import { ViewToggle } from "@/components/view-toggle";
 import { StudyTable } from "@/components/study-table";
 import { StudyCardGrid } from "@/components/study-card-grid";
 import { studies } from "@/lib/data";
+import { filterStudies } from "@/lib/filter-studies";
 
 export const Route = createFileRoute("/")({
   head: () => ({
