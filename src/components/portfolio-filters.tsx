@@ -1,22 +1,30 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Search, Calendar, ChevronDown, Check, X } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { therapeuticAreas } from "@/lib/data";
+import type { Study } from "@/lib/data";
+import { filterStudies } from "@/lib/filter-studies";
 import { cn } from "@/lib/utils";
 
-const phases = ["Ph I", "Ph II", "Ph III", "Ph IV"];
-const statuses = ["Recruiting", "Planned", "Follow-up"];
-const portfolios = [
-  "Oncology Portfolio",
-  "Cardiovascular Portfolio",
-  "Neurology Portfolio",
-  "Immunology Portfolio",
-  "Respiratory Portfolio",
-];
-const programs = ["ZPH-505", "OMP-770", "GEN-330", "PHX-873", "NXG-810", "CRX-255", "VRD-698"];
-const regions = ["North America", "EU", "APAC", "LATAM", "MEA"];
 const dateOptions = ["Last 30 days", "Last 90 days", "YTD", "Last 12 months", "All time"];
+const regions = ["North America", "EU", "APAC", "LATAM", "MEA"];
+const phaseOrder = ["Ph I", "Ph II", "Ph III", "Ph IV"];
+
+function uniqSorted<T>(arr: T[], order?: T[]): T[] {
+  const s = Array.from(new Set(arr));
+  if (order) {
+    return s.sort((a, b) => {
+      const ai = order.indexOf(a);
+      const bi = order.indexOf(b);
+      if (ai === -1 && bi === -1) return String(a).localeCompare(String(b));
+      if (ai === -1) return 1;
+      if (bi === -1) return -1;
+      return ai - bi;
+    });
+  }
+  return s.sort((a, b) => String(a).localeCompare(String(b)));
+}
+
 
 export interface FilterState {
   search: string;
