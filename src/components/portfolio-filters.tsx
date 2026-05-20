@@ -226,7 +226,7 @@ export function PortfolioFilters({
           onChange={(v) => set("portfolio", v)}
         />
         <SingleSelect label="Program" options={available.programs} value={filters.program} onChange={(v) => set("program", v)} />
-        <SingleSelect label="Region" options={regions} value={filters.region} onChange={(v) => set("region", v)} />
+        <SingleSelect label="Region" options={available.regions} value={filters.region} onChange={(v) => set("region", v)} />
         <Select
           value={filters.dateRange ?? ""}
           onValueChange={(v) => set("dateRange", v === "__all__" ? null : v)}
