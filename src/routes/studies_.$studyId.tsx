@@ -529,7 +529,17 @@ function StudyOverviewPage() {
                         <tr key={c.name + "-exp"} className="bg-muted/30">
                           <td />
                           <td colSpan={7} className="px-4 py-3">
-                            <CountryDrilldown country={c.name} sites={(detail.sites ?? []).filter((s) => s.country === c.name)} />
+                            <CountryDrilldown
+                              country={c.name}
+                              sites={(detail.sites ?? []).filter((s) => s.country === c.name)}
+                              onSelectSite={(id) => {
+                                setView("site");
+                                setExpanded((p) => ({ ...p, [`s-${id}`]: true }));
+                                setTimeout(() => {
+                                  document.getElementById(`site-row-${id}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+                                }, 50);
+                              }}
+                            />
                           </td>
                         </tr>
                       )}
@@ -562,10 +572,11 @@ function StudyOverviewPage() {
                       : s.status === "ON HOLD" ? "bg-warning-bg text-warning-foreground"
                       : s.status === "CLOSED" ? "bg-muted text-muted-foreground"
                       : "bg-success-bg text-success-foreground";
-                    const key = `s-${s.id}-${s.name}`;
+                    const key = `s-${s.id}`;
                     return (
-                      <React.Fragment key={key}>
+                      <React.Fragment key={s.id + s.name}>
                       <tr
+                        id={`site-row-${s.id}`}
                         onClick={() => toggle(key)}
                         className="cursor-pointer border-b border-border/60 last:border-0 hover:bg-muted/40"
                       >
@@ -713,7 +724,7 @@ function PerfList({ heading, rows, valueColor }: { heading: string; rows: PerfIt
   );
 }
 
-function CountryDrilldown({ country, sites }: { country: string; sites: SiteRow[] }) {
+function CountryDrilldown({ country, sites, onSelectSite }: { country: string; sites: SiteRow[]; onSelectSite: (id: string) => void }) {
   if (sites.length === 0) {
     return <p className="text-xs text-muted-foreground">No site-level data available for {country}.</p>;
   }
@@ -736,7 +747,15 @@ function CountryDrilldown({ country, sites }: { country: string; sites: SiteRow[
         <tbody>
           {sites.map((s) => (
             <tr key={s.id + s.name} className="border-t border-border/60">
-              <td className="px-3 py-2 font-mono text-primary">{s.id}</td>
+              <td className="px-3 py-2">
+                <button
+                  type="button"
+                  onClick={() => onSelectSite(s.id)}
+                  className="font-mono text-primary hover:underline"
+                >
+                  {s.id}
+                </button>
+              </td>
               <td className="px-3 py-2 text-foreground">{s.name}</td>
               <td className="px-3 py-2 text-right tabular-nums text-foreground">{s.target}</td>
               <td className="px-3 py-2 text-right tabular-nums text-foreground">{s.actual}</td>
