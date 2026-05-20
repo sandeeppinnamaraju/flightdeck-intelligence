@@ -1,5 +1,6 @@
 import type { Study } from "./data";
 import type { FilterState } from "@/components/portfolio-filters";
+import { getStudyRegions, studyMatchesDateRange } from "./study-derived";
 
 type Key = keyof FilterState;
 
@@ -21,7 +22,8 @@ export function filterStudies(
     if (use("status") && f.status && s.status !== f.status) return false;
     if (use("portfolio") && f.portfolio && s.portfolio !== f.portfolio) return false;
     if (use("program") && f.program && s.program !== f.program) return false;
-    // region & dateRange: no underlying data — no-op
+    if (use("region") && f.region && !getStudyRegions(s).includes(f.region as never)) return false;
+    if (use("dateRange") && f.dateRange && !studyMatchesDateRange(s, f.dateRange)) return false;
     return true;
   });
 }

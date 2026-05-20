@@ -4,10 +4,10 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { Study } from "@/lib/data";
 import { filterStudies } from "@/lib/filter-studies";
+import { getStudyRegions, REGIONS } from "@/lib/study-derived";
 import { cn } from "@/lib/utils";
 
 const dateOptions = ["Last 30 days", "Last 90 days", "YTD", "Last 12 months", "All time"];
-const regions = ["North America", "EU", "APAC", "LATAM", "MEA"];
 const phaseOrder = ["Ph I", "Ph II", "Ph III", "Ph IV"];
 
 function uniqSorted<T>(arr: T[], order?: T[]): T[] {
@@ -171,12 +171,17 @@ export function PortfolioFilters({
   const available = useMemo(() => {
     const opts = (key: keyof FilterState, pick: (s: Study) => string, order?: string[]) =>
       uniqSorted(filterStudies(studies, filters, key).map(pick), order);
+    const regionPool = new Set<string>();
+    for (const s of filterStudies(studies, filters, "region")) {
+      for (const r of getStudyRegions(s)) regionPool.add(r);
+    }
     return {
       areas: opts("areas", (s) => s.therapeuticArea),
       phases: opts("phase", (s) => s.phase, phaseOrder),
       statuses: opts("status", (s) => s.status),
       portfolios: opts("portfolio", (s) => s.portfolio),
       programs: opts("program", (s) => s.program),
+      regions: REGIONS.filter((r) => regionPool.has(r)),
     };
   }, [studies, filters]);
 
@@ -221,7 +226,7 @@ export function PortfolioFilters({
           onChange={(v) => set("portfolio", v)}
         />
         <SingleSelect label="Program" options={available.programs} value={filters.program} onChange={(v) => set("program", v)} />
-        <SingleSelect label="Region" options={regions} value={filters.region} onChange={(v) => set("region", v)} />
+        <SingleSelect label="Region" options={available.regions} value={filters.region} onChange={(v) => set("region", v)} />
         <Select
           value={filters.dateRange ?? ""}
           onValueChange={(v) => set("dateRange", v === "__all__" ? null : v)}
