@@ -364,12 +364,18 @@ function StudyOverviewPage() {
             </button>
           </div>
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1 rounded-md border border-danger/30 bg-danger-bg/50 px-2.5 py-1 text-xs font-medium text-danger-foreground">
-              <TrendingDown className="h-3.5 w-3.5" /> Underperforming
-            </span>
-            <span className="inline-flex items-center gap-1 rounded-md border border-success/30 bg-success-bg/50 px-2.5 py-1 text-xs font-medium text-success-foreground">
-              <TrendingUp className="h-3.5 w-3.5" /> Overperforming
-            </span>
+            <PerfPopover
+              tone="down"
+              label="Underperforming"
+              title="Underperforming Sites — Top 3"
+              groups={detail.underperformingTop}
+            />
+            <PerfPopover
+              tone="up"
+              label="Overperforming"
+              title="Overperforming Sites — Top 3"
+              groups={detail.overperformingTop}
+            />
           </div>
         </div>
 
@@ -380,54 +386,99 @@ function StudyOverviewPage() {
             </h3>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-border text-left text-xs font-semibold text-muted-foreground">
-                  <th className="px-4 py-3 font-medium" />
-                  <th className="px-4 py-3 font-medium">{view === "country" ? "Country" : "Site"}</th>
-                  <th className="px-4 py-3 text-right font-medium">Target</th>
-                  <th className="px-4 py-3 text-right font-medium">Actual</th>
-                  <th className="px-4 py-3 text-right font-medium">% Enrolled</th>
-                  <th className="px-4 py-3 text-right font-medium">Sites Active</th>
-                  <th className="px-4 py-3 text-right font-medium">Avg Rate</th>
-                  <th className="px-4 py-3 text-center font-medium">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {detail.countries.map((c) => {
-                  const sColor =
-                    c.status === "On Track" ? "bg-success-bg text-success-foreground"
-                    : c.status === "At Risk" ? "bg-warning-bg text-warning-foreground"
-                    : "bg-danger-bg text-danger-foreground";
-                  const dotColor =
-                    c.status === "On Track" ? "bg-success"
-                    : c.status === "At Risk" ? "bg-warning"
-                    : "bg-danger";
-                  return (
-                    <tr key={c.name} className="border-b border-border/60 last:border-0 hover:bg-muted/40">
-                      <td className="px-4 py-3 text-muted-foreground">
-                        <ChevronRight className="h-4 w-4" />
-                      </td>
-                      <td className="px-4 py-3 font-medium text-foreground">{c.name}</td>
-                      <td className="px-4 py-3 text-right tabular-nums text-foreground">{c.target}</td>
-                      <td className="px-4 py-3 text-right tabular-nums text-foreground">{c.actual}</td>
-                      <td className="px-4 py-3 text-right tabular-nums text-foreground">{c.pct.toFixed(1)}%</td>
-                      <td className="px-4 py-3 text-right tabular-nums text-foreground">{c.sitesActive}</td>
-                      <td className="px-4 py-3 text-right tabular-nums text-foreground">{c.avgRate.toFixed(1)}</td>
-                      <td className="px-4 py-3 text-center">
-                        <span className={cn("inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium", sColor)}>
-                          <span className={cn("h-1.5 w-1.5 rounded-full", dotColor)} />
-                          {c.status}
-                        </span>
-                      </td>
-                    </tr>
-                  );
-                })}
-                {detail.countries.length === 0 && (
-                  <tr><td colSpan={8} className="px-4 py-8 text-center text-muted-foreground">No breakdown data available.</td></tr>
-                )}
-              </tbody>
-            </table>
+            {view === "country" ? (
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border text-left text-xs font-semibold text-muted-foreground">
+                    <th className="px-4 py-3 font-medium" />
+                    <th className="px-4 py-3 font-medium">Country</th>
+                    <th className="px-4 py-3 text-right font-medium">Target</th>
+                    <th className="px-4 py-3 text-right font-medium">Actual</th>
+                    <th className="px-4 py-3 text-right font-medium">% Enrolled</th>
+                    <th className="px-4 py-3 text-right font-medium">Sites Active</th>
+                    <th className="px-4 py-3 text-right font-medium">Avg Rate</th>
+                    <th className="px-4 py-3 text-center font-medium">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {detail.countries.map((c) => {
+                    const sColor =
+                      c.status === "On Track" ? "bg-success-bg text-success-foreground"
+                      : c.status === "At Risk" ? "bg-warning-bg text-warning-foreground"
+                      : "bg-danger-bg text-danger-foreground";
+                    const dotColor =
+                      c.status === "On Track" ? "bg-success"
+                      : c.status === "At Risk" ? "bg-warning"
+                      : "bg-danger";
+                    return (
+                      <tr key={c.name} className="border-b border-border/60 last:border-0 hover:bg-muted/40">
+                        <td className="px-4 py-3 text-muted-foreground"><ChevronRight className="h-4 w-4" /></td>
+                        <td className="px-4 py-3 font-medium text-foreground">{c.name}</td>
+                        <td className="px-4 py-3 text-right tabular-nums text-foreground">{c.target}</td>
+                        <td className="px-4 py-3 text-right tabular-nums text-foreground">{c.actual}</td>
+                        <td className="px-4 py-3 text-right tabular-nums text-foreground">{c.pct.toFixed(1)}%</td>
+                        <td className="px-4 py-3 text-right tabular-nums text-foreground">{c.sitesActive}</td>
+                        <td className="px-4 py-3 text-right tabular-nums text-foreground">{c.avgRate.toFixed(1)}</td>
+                        <td className="px-4 py-3 text-center">
+                          <span className={cn("inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium", sColor)}>
+                            <span className={cn("h-1.5 w-1.5 rounded-full", dotColor)} />
+                            {c.status}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                  {detail.countries.length === 0 && (
+                    <tr><td colSpan={8} className="px-4 py-8 text-center text-muted-foreground">No breakdown data available.</td></tr>
+                  )}
+                </tbody>
+              </table>
+            ) : (
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border text-left text-xs font-semibold text-muted-foreground">
+                    <th className="px-4 py-3 font-medium" />
+                    <th className="px-4 py-3 font-medium">Site ID</th>
+                    <th className="px-4 py-3 font-medium">Site Name</th>
+                    <th className="px-4 py-3 font-medium">Country</th>
+                    <th className="px-4 py-3 text-right font-medium">Target</th>
+                    <th className="px-4 py-3 text-right font-medium">Actual</th>
+                    <th className="px-4 py-3 text-right font-medium">% Enrolled</th>
+                    <th className="px-4 py-3 text-center font-medium">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(detail.sites ?? []).map((s) => {
+                    const stat =
+                      s.status === "SCREENING" ? "bg-info-bg text-info-foreground"
+                      : s.status === "ON HOLD" ? "bg-warning-bg text-warning-foreground"
+                      : s.status === "CLOSED" ? "bg-muted text-muted-foreground"
+                      : "bg-success-bg text-success-foreground";
+                    return (
+                      <tr key={s.id + s.name} className="border-b border-border/60 last:border-0 hover:bg-muted/40">
+                        <td className="px-4 py-3 text-muted-foreground"><ChevronRight className="h-4 w-4" /></td>
+                        <td className="px-4 py-3">
+                          <span className="rounded bg-accent px-2 py-0.5 font-mono text-xs font-semibold text-accent-foreground">{s.id}</span>
+                        </td>
+                        <td className="px-4 py-3 font-medium text-foreground">{s.name}</td>
+                        <td className="px-4 py-3 text-foreground">{s.country}</td>
+                        <td className="px-4 py-3 text-right tabular-nums text-foreground">{s.target}</td>
+                        <td className="px-4 py-3 text-right tabular-nums text-foreground">{s.actual}</td>
+                        <td className="px-4 py-3 text-right tabular-nums text-foreground">{s.pct.toFixed(1)}%</td>
+                        <td className="px-4 py-3 text-center">
+                          <span className={cn("inline-flex rounded px-2 py-0.5 text-[11px] font-semibold tracking-wide", stat)}>
+                            {s.status}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                  {(!detail.sites || detail.sites.length === 0) && (
+                    <tr><td colSpan={8} className="px-4 py-8 text-center text-muted-foreground">No site data available.</td></tr>
+                  )}
+                </tbody>
+              </table>
+            )}
           </div>
         </div>
       </section>
