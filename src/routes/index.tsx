@@ -11,7 +11,7 @@ import { studies } from "@/lib/data";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Portfolio Dashboard — Flight Deck" },
+      { title: "Study Portfolio Dashboard — Flight Deck" },
       { name: "description", content: "Overview of active clinical trial portfolios, enrollment, and performance." },
     ],
   }),
@@ -25,7 +25,7 @@ function PortfolioPage() {
     <main className="mx-auto max-w-[1600px] px-6 py-6">
       <div className="flex items-start justify-between gap-4">
         <h1 className="text-2xl font-bold tracking-tight text-foreground">
-          Portfolio Dashboard
+          Study Portfolio Dashboard
         </h1>
         <InsightsButton />
       </div>
