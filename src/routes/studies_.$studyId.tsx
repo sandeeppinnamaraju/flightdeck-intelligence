@@ -529,7 +529,17 @@ function StudyOverviewPage() {
                         <tr key={c.name + "-exp"} className="bg-muted/30">
                           <td />
                           <td colSpan={7} className="px-4 py-3">
-                            <CountryDrilldown country={c.name} sites={(detail.sites ?? []).filter((s) => s.country === c.name)} />
+                            <CountryDrilldown
+                              country={c.name}
+                              sites={(detail.sites ?? []).filter((s) => s.country === c.name)}
+                              onSelectSite={(id) => {
+                                setView("site");
+                                setExpanded((p) => ({ ...p, [`s-${id}`]: true }));
+                                setTimeout(() => {
+                                  document.getElementById(`site-row-${id}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+                                }, 50);
+                              }}
+                            />
                           </td>
                         </tr>
                       )}
