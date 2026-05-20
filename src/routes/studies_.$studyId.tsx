@@ -339,8 +339,8 @@ function StudyOverviewPage() {
           <MetaField label="Target Enrollment" value={String(detail.targetEnrollment)} />
           <MetaField label="Planned FPI" value={detail.plannedFPI} />
           <MetaField label="Actual FPI" value={detail.actualFPI} />
-          <MetaField label="Planned LPI" value={detail.plannedLPI} />
-          <MetaField label="Forecast LPI" value={detail.forecastLPI} />
+          <MetaField label="Planned LPO" value={detail.plannedLPI} />
+          <MetaField label="Forecast LPO" value={detail.forecastLPI} />
         </div>
       </section>
 
