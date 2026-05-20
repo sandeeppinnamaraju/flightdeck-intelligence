@@ -136,6 +136,9 @@ interface StudyDetail {
     name: string; target: number; actual: number; pct: number;
     sitesActive: number; avgRate: number; status: "On Track" | "At Risk" | "Off Track";
   }>;
+  sites?: SiteRow[];
+  underperformingTop?: PerfGroups;
+  overperformingTop?: PerfGroups;
 }
 
 function cumulativeData(target: number, actual: number) {
