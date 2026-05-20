@@ -42,8 +42,10 @@ export function StudyTable({ studies }: Props) {
                 key={s.id}
                 className="border-b border-border/60 transition-colors last:border-0 hover:bg-muted/40"
               >
-                <td className="whitespace-nowrap px-4 py-3 font-mono text-xs font-semibold text-primary hover:underline">
-                  {s.id}
+                <td className="whitespace-nowrap px-4 py-3 font-mono text-xs font-semibold text-primary">
+                  <Link to="/studies/$studyId" params={{ studyId: s.id }} className="hover:underline">
+                    {s.id}
+                  </Link>
                 </td>
                 <td className="whitespace-nowrap px-4 py-3 text-foreground">{s.phase}</td>
                 <td className="whitespace-nowrap px-4 py-3 text-foreground">{s.therapeuticArea}</td>
