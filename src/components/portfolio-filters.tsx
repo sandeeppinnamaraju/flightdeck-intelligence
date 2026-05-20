@@ -126,7 +126,7 @@ function MultiSelectTA({
           )}
         </div>
         <div className="max-h-64 overflow-y-auto">
-          {therapeuticAreas.map((a) => {
+          {options.map((a: string) => {
             const isSel = selected.includes(a);
             return (
               <button
