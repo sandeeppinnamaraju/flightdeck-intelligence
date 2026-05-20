@@ -533,7 +533,7 @@ function StudyOverviewPage() {
                           </td>
                         </tr>
                       )}
-                      </>
+                      </React.Fragment>
                     );
                   })}
                   {detail.countries.length === 0 && (
