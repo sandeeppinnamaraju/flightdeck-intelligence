@@ -16,9 +16,7 @@ export function TopNav() {
         <nav className="flex items-center gap-1">
           {tabs.map((t) => {
             const active =
-              t.to === "/" ? pathname === "/"
-              : t.label === "Study Overview" ? pathname.startsWith("/studies")
-              : pathname.startsWith(t.to);
+              t.to === "/" ? pathname === "/" : pathname.startsWith(t.to);
             return (
               <Link
                 key={t.to}
