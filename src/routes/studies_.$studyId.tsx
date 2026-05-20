@@ -275,6 +275,8 @@ function StudyOverviewPage() {
   const study = studies.find((s) => s.id === studyId);
   const [range, setRange] = useState<"full" | "since" | "last3">("full");
   const [view, setView] = useState<"country" | "site">("country");
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+  const toggle = (k: string) => setExpanded((p) => ({ ...p, [k]: !p[k] }));
 
   if (!study) {
     return (
