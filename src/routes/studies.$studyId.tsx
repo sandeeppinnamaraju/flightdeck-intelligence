@@ -107,8 +107,8 @@ interface SiteRow {
   id: string; name: string; country: string; target: number; actual: number; pct: number;
   status: "ON HOLD" | "SCREENING" | "CLOSED" | "ENROLLING";
 }
-interface PerfList { rank: number; name: string; value: string }
-interface PerfGroups { shortfall: PerfList[]; pctBelow: PerfList[] }
+interface PerfItem { rank: number; name: string; value: string }
+interface PerfGroups { shortfall: PerfItem[]; pctBelow: PerfItem[] }
 
 interface StudyDetail {
   asset: string;
@@ -570,7 +570,7 @@ function PerfPopover({
   );
 }
 
-function PerfList({ heading, rows, valueColor }: { heading: string; rows: PerfList[]; valueColor: string }) {
+function PerfList({ heading, rows, valueColor }: { heading: string; rows: PerfItem[]; valueColor: string }) {
   return (
     <div>
       <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{heading}</p>
