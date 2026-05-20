@@ -153,11 +153,13 @@ function MultiSelectTA({
 }
 
 export function PortfolioFilters({
+  studies,
   total,
   shown,
   filters,
   onChange,
 }: {
+  studies: Study[];
   total: number;
   shown: number;
   filters: FilterState;
@@ -165,6 +167,20 @@ export function PortfolioFilters({
 }) {
   const set = <K extends keyof FilterState>(key: K, value: FilterState[K]) =>
     onChange({ ...filters, [key]: value });
+
+  const available = useMemo(() => {
+    const opts = (key: keyof FilterState, pick: (s: Study) => string, order?: string[]) =>
+      uniqSorted(filterStudies(studies, filters, key).map(pick), order);
+    return {
+      areas: opts("areas", (s) => s.therapeuticArea),
+      phases: opts("phase", (s) => s.phase, phaseOrder),
+      statuses: opts("status", (s) => s.status),
+      portfolios: opts("portfolio", (s) => s.portfolio),
+      programs: opts("program", (s) => s.program),
+    };
+  }, [studies, filters]);
+
+
 
   const hasAny =
     filters.areas.length > 0 ||
