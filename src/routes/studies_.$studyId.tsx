@@ -282,7 +282,7 @@ function StudyOverviewPage() {
     return (
       <main className="mx-auto max-w-[1600px] px-6 py-12 text-center">
         <p className="text-muted-foreground">Study not found.</p>
-        <Link to="/" className="mt-4 inline-block text-primary hover:underline">← Back to Study Portfolio</Link>
+        <Link to="/portfolio" className="mt-4 inline-block text-primary hover:underline">← Back to Study Portfolio</Link>
       </main>
     );
   }
@@ -298,7 +298,7 @@ function StudyOverviewPage() {
 
   return (
     <main className="mx-auto max-w-[1600px] px-6 py-6">
-      <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline">
+      <Link to="/portfolio" className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline">
         <ArrowLeft className="h-4 w-4" /> Back to Study Portfolio
       </Link>
 
