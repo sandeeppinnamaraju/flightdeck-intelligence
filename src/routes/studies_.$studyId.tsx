@@ -572,10 +572,11 @@ function StudyOverviewPage() {
                       : s.status === "ON HOLD" ? "bg-warning-bg text-warning-foreground"
                       : s.status === "CLOSED" ? "bg-muted text-muted-foreground"
                       : "bg-success-bg text-success-foreground";
-                    const key = `s-${s.id}-${s.name}`;
+                    const key = `s-${s.id}`;
                     return (
-                      <React.Fragment key={key}>
+                      <React.Fragment key={s.id + s.name}>
                       <tr
+                        id={`site-row-${s.id}`}
                         onClick={() => toggle(key)}
                         className="cursor-pointer border-b border-border/60 last:border-0 hover:bg-muted/40"
                       >
