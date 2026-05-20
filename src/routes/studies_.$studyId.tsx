@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
-import { ArrowLeft, Calendar, TrendingDown, TrendingUp, ChevronRight } from "lucide-react";
+import React, { useState } from "react";
+import { ArrowLeft, Calendar, TrendingDown, TrendingUp, ChevronRight, ChevronDown } from "lucide-react";
 import {
   LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer,
   BarChart, Bar, CartesianGrid, Legend,
@@ -275,6 +275,8 @@ function StudyOverviewPage() {
   const study = studies.find((s) => s.id === studyId);
   const [range, setRange] = useState<"full" | "since" | "last3">("full");
   const [view, setView] = useState<"country" | "site">("country");
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+  const toggle = (k: string) => setExpanded((p) => ({ ...p, [k]: !p[k] }));
 
   if (!study) {
     return (
@@ -502,8 +504,14 @@ function StudyOverviewPage() {
                       : c.status === "At Risk" ? "bg-warning"
                       : "bg-danger";
                     return (
-                      <tr key={c.name} className="border-b border-border/60 last:border-0 hover:bg-muted/40">
-                        <td className="px-4 py-3 text-muted-foreground"><ChevronRight className="h-4 w-4" /></td>
+                      <React.Fragment key={c.name}>
+                      <tr
+                        onClick={() => toggle(`c-${c.name}`)}
+                        className="cursor-pointer border-b border-border/60 last:border-0 hover:bg-muted/40"
+                      >
+                        <td className="px-4 py-3 text-muted-foreground">
+                          {expanded[`c-${c.name}`] ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                        </td>
                         <td className="px-4 py-3 font-medium text-foreground">{c.name}</td>
                         <td className="px-4 py-3 text-right tabular-nums text-foreground">{c.target}</td>
                         <td className="px-4 py-3 text-right tabular-nums text-foreground">{c.actual}</td>
@@ -517,6 +525,15 @@ function StudyOverviewPage() {
                           </span>
                         </td>
                       </tr>
+                      {expanded[`c-${c.name}`] && (
+                        <tr key={c.name + "-exp"} className="bg-muted/30">
+                          <td />
+                          <td colSpan={7} className="px-4 py-3">
+                            <CountryDrilldown country={c.name} sites={(detail.sites ?? []).filter((s) => s.country === c.name)} />
+                          </td>
+                        </tr>
+                      )}
+                      </React.Fragment>
                     );
                   })}
                   {detail.countries.length === 0 && (
@@ -545,9 +562,16 @@ function StudyOverviewPage() {
                       : s.status === "ON HOLD" ? "bg-warning-bg text-warning-foreground"
                       : s.status === "CLOSED" ? "bg-muted text-muted-foreground"
                       : "bg-success-bg text-success-foreground";
+                    const key = `s-${s.id}-${s.name}`;
                     return (
-                      <tr key={s.id + s.name} className="border-b border-border/60 last:border-0 hover:bg-muted/40">
-                        <td className="px-4 py-3 text-muted-foreground"><ChevronRight className="h-4 w-4" /></td>
+                      <React.Fragment key={key}>
+                      <tr
+                        onClick={() => toggle(key)}
+                        className="cursor-pointer border-b border-border/60 last:border-0 hover:bg-muted/40"
+                      >
+                        <td className="px-4 py-3 text-muted-foreground">
+                          {expanded[key] ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                        </td>
                         <td className="px-4 py-3">
                           <span className="rounded bg-accent px-2 py-0.5 font-mono text-xs font-semibold text-accent-foreground">{s.id}</span>
                         </td>
@@ -562,6 +586,15 @@ function StudyOverviewPage() {
                           </span>
                         </td>
                       </tr>
+                      {expanded[key] && (
+                        <tr className="bg-muted/30">
+                          <td />
+                          <td colSpan={7} className="px-4 py-3">
+                            <SiteDrilldown site={s} />
+                          </td>
+                        </tr>
+                      )}
+                      </React.Fragment>
                     );
                   })}
                   {(!detail.sites || detail.sites.length === 0) && (
@@ -676,6 +709,90 @@ function PerfList({ heading, rows, valueColor }: { heading: string; rows: PerfIt
           </li>
         ))}
       </ul>
+    </div>
+  );
+}
+
+function CountryDrilldown({ country, sites }: { country: string; sites: SiteRow[] }) {
+  if (sites.length === 0) {
+    return <p className="text-xs text-muted-foreground">No site-level data available for {country}.</p>;
+  }
+  return (
+    <div className="rounded-lg border border-border bg-card">
+      <p className="border-b border-border px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+        Sites in {country}
+      </p>
+      <table className="w-full text-xs">
+        <thead>
+          <tr className="text-left text-muted-foreground">
+            <th className="px-3 py-2 font-medium">Site ID</th>
+            <th className="px-3 py-2 font-medium">Site Name</th>
+            <th className="px-3 py-2 text-right font-medium">Target</th>
+            <th className="px-3 py-2 text-right font-medium">Actual</th>
+            <th className="px-3 py-2 text-right font-medium">% Enrolled</th>
+            <th className="px-3 py-2 text-center font-medium">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {sites.map((s) => (
+            <tr key={s.id + s.name} className="border-t border-border/60">
+              <td className="px-3 py-2 font-mono text-primary">{s.id}</td>
+              <td className="px-3 py-2 text-foreground">{s.name}</td>
+              <td className="px-3 py-2 text-right tabular-nums text-foreground">{s.target}</td>
+              <td className="px-3 py-2 text-right tabular-nums text-foreground">{s.actual}</td>
+              <td className="px-3 py-2 text-right tabular-nums text-foreground">{s.pct.toFixed(1)}%</td>
+              <td className="px-3 py-2 text-center text-muted-foreground">{s.status}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function SiteDrilldown({ site }: { site: SiteRow }) {
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
+  const seed = site.id.charCodeAt(1) + site.id.charCodeAt(2);
+  const monthly = months.map((m, i) => {
+    const planned = Math.max(1, Math.round(site.target / 6));
+    const actual = Math.max(0, Math.round((site.actual / 6) * (0.6 + ((seed + i) % 8) / 10)));
+    return { m, planned, actual: Math.min(actual, planned + 2) };
+  });
+  const screened = Math.round(site.actual * 1.4) + 2;
+  const failed = Math.max(0, screened - site.actual);
+  return (
+    <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+      <div className="rounded-lg border border-border bg-card p-3">
+        <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Site Info</p>
+        <dl className="mt-2 space-y-1 text-xs">
+          <div className="flex justify-between"><dt className="text-muted-foreground">Site ID</dt><dd className="font-mono text-foreground">{site.id}</dd></div>
+          <div className="flex justify-between"><dt className="text-muted-foreground">Country</dt><dd className="text-foreground">{site.country}</dd></div>
+          <div className="flex justify-between"><dt className="text-muted-foreground">Status</dt><dd className="text-foreground">{site.status}</dd></div>
+          <div className="flex justify-between"><dt className="text-muted-foreground">Activated</dt><dd className="text-foreground">12 Apr 2024</dd></div>
+          <div className="flex justify-between"><dt className="text-muted-foreground">PI</dt><dd className="text-foreground">Dr. A. Hoffmann</dd></div>
+        </dl>
+      </div>
+      <div className="rounded-lg border border-border bg-card p-3">
+        <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Screening Funnel</p>
+        <dl className="mt-2 space-y-1 text-xs">
+          <div className="flex justify-between"><dt className="text-muted-foreground">Screened</dt><dd className="tabular-nums text-foreground">{screened}</dd></div>
+          <div className="flex justify-between"><dt className="text-muted-foreground">Screen Failures</dt><dd className="tabular-nums text-foreground">{failed}</dd></div>
+          <div className="flex justify-between"><dt className="text-muted-foreground">Enrolled</dt><dd className="tabular-nums text-foreground">{site.actual}</dd></div>
+          <div className="flex justify-between"><dt className="text-muted-foreground">Target</dt><dd className="tabular-nums text-foreground">{site.target}</dd></div>
+          <div className="flex justify-between"><dt className="text-muted-foreground">% Enrolled</dt><dd className="tabular-nums text-foreground">{site.pct.toFixed(1)}%</dd></div>
+        </dl>
+      </div>
+      <div className="rounded-lg border border-border bg-card p-3">
+        <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Monthly Enrollment</p>
+        <table className="mt-2 w-full text-xs">
+          <thead><tr className="text-left text-muted-foreground"><th className="py-1 font-medium">Month</th><th className="py-1 text-right font-medium">Plan</th><th className="py-1 text-right font-medium">Actual</th></tr></thead>
+          <tbody>
+            {monthly.map((row) => (
+              <tr key={row.m} className="border-t border-border/60"><td className="py-1 text-foreground">{row.m}</td><td className="py-1 text-right tabular-nums text-foreground">{row.planned}</td><td className="py-1 text-right tabular-nums text-foreground">{row.actual}</td></tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
