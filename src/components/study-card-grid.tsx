@@ -37,9 +37,11 @@ export function StudyCardGrid({ studies }: { studies: Study[] }) {
       {studies.map((s) => {
         const pct = s.target ? Math.round((s.actual / s.target) * 100 * 10) / 10 : 0;
         return (
-          <div
+          <Link
             key={s.id}
-            className="group rounded-xl border border-border bg-card p-5 shadow-card transition-all hover:-translate-y-0.5 hover:shadow-card-hover"
+            to="/studies/$studyId"
+            params={{ studyId: s.id }}
+            className="group block rounded-xl border border-border bg-card p-5 shadow-card transition-all hover:-translate-y-0.5 hover:shadow-card-hover"
           >
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2">
