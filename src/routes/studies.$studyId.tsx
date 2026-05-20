@@ -162,27 +162,108 @@ function rateData() {
   }));
 }
 
+const COUNTRY_POOL = ["United States", "Canada", "United Kingdom", "Germany", "France", "Spain", "Italy", "Australia", "Japan", "South Korea", "Brazil", "Mexico", "Sweden", "New Zealand", "Netherlands", "Poland"];
+const SPONSOR_POOL = ["ApexBio Research", "Genovex Therapeutics", "Helix Pharma", "Northstar Bio", "Vanta Sciences", "Meridian Labs"];
+const LEAD_POOL = ["Dr. Lisa Miller", "Dr. James Chen", "Dr. Priya Patel", "Dr. Anders Holm", "Dr. Maria Rossi", "Dr. Samuel Okafor"];
+const FSO_POOL = ["Full Service Outsourcing (FSO) · Hybrid", "Functional Service Provider (FSP)", "Full Service Outsourcing (FSO)", "Hybrid FSP/FSO"];
+const DESIGN_POOL = ["Fast Track", "Standard", "Breakthrough", "Priority Review"];
+const SITE_TYPES = ["Cancer Center", "Research Institute", "Medical Center", "Clinical Center", "General Hospital", "University Hospital", "Health System"];
+const SITE_STATUSES: SiteRow["status"][] = ["SCREENING", "ON HOLD", "CLOSED", "ENROLLING"];
+
+function hash(s: string) { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return Math.abs(h); }
+function pick<T>(arr: T[], seed: number) { return arr[seed % arr.length]; }
+
+function buildFallback(studyId: string, study: (typeof studies)[number]): StudyDetail {
+  const seed = hash(studyId);
+  const target = study.target || 100;
+  const actual = study.actual || 0;
+  const countryCount = Math.max(1, study.countries || 3);
+  const siteCount = Math.max(countryCount, study.sites || countryCount * 2);
+  const names: string[] = [];
+  for (let i = 0; i < countryCount; i++) {
+    let n = COUNTRY_POOL[(seed + i * 7) % COUNTRY_POOL.length];
+    let k = 1;
+    while (names.includes(n)) n = COUNTRY_POOL[(seed + i * 7 + k++) % COUNTRY_POOL.length];
+    names.push(n);
+  }
+
+  let remT = target, remA = actual;
+  const countries = names.map((name, i) => {
+    const isLast = i === names.length - 1;
+    const t = isLast ? remT : Math.max(1, Math.min(remT - (countryCount - i - 1), Math.round(target / countryCount)));
+    remT -= t;
+    const aRaw = isLast ? remA : Math.round(actual * (t / target) * (0.4 + ((seed >> (i + 2)) % 12) / 10));
+    const a = Math.max(0, Math.min(t, aRaw, remA));
+    remA -= a;
+    const pct = t ? (a / t) * 100 : 0;
+    const status: "On Track" | "At Risk" | "Off Track" = pct >= 90 ? "On Track" : pct >= 50 ? "At Risk" : "Off Track";
+    const sitesActive = Math.max(1, Math.round(siteCount / countryCount));
+    const avgRate = Math.round((a / Math.max(1, sitesActive)) * 0.3 * 10) / 10;
+    return { name, target: t, actual: a, pct: Math.round(pct * 10) / 10, sitesActive, avgRate, status };
+  });
+
+  const sites: SiteRow[] = [];
+  let sid = 1;
+  for (const c of countries) {
+    let cT = c.target, cA = c.actual;
+    const cSites = Math.max(1, c.sitesActive);
+    for (let j = 0; j < cSites; j++) {
+      const isLast = j === cSites - 1;
+      const t = isLast ? cT : Math.max(1, Math.round(c.target / cSites));
+      const tc = Math.min(t, cT); cT -= tc;
+      const aR = isLast ? cA : Math.min(tc, Math.round(c.actual / cSites));
+      const ac = Math.max(0, Math.min(tc, aR, cA)); cA -= ac;
+      const pct = tc ? (ac / tc) * 100 : 0;
+      sites.push({
+        id: `S${String(sid++).padStart(4, "0")}`,
+        name: `${c.name.slice(0, 4).toUpperCase()}-${pick(SITE_TYPES, seed + sid)}`,
+        country: c.name,
+        target: tc, actual: ac, pct: Math.round(pct * 10) / 10,
+        status: pick(SITE_STATUSES, seed + sid * 3),
+      });
+    }
+  }
+
+  const ratePlan = Math.round((target / 60) * 10) / 10;
+  const rateActual = Math.round((actual / 60) * 10) / 10;
+  const evp = study.percentVsPlan ?? (target ? Math.round((actual / target) * 1000) / 10 : 0);
+  const enrollmentPlan = Math.max(1, Math.round(actual / ((evp || 100) / 100)));
+
+  return {
+    asset: study.program,
+    assetLead: pick(LEAD_POOL, seed),
+    fsoModel: pick(FSO_POOL, seed >> 2),
+    sponsor: pick(SPONSOR_POOL, seed >> 3),
+    designation: pick(DESIGN_POOL, seed >> 4),
+    targetEnrollment: target,
+    plannedFPI: "15 Jan 2024",
+    actualFPI: "12 Feb 2024",
+    plannedLPI: "30 Sept 2029",
+    forecastLPI: "—",
+    enrollmentVsPlan: evp,
+    enrollmentActual: actual,
+    enrollmentPlan,
+    rateActual, ratePlan,
+    screenFailureRate: Math.round((10 + (seed % 200) / 10) * 10) / 10,
+    dropoutRate: Math.round((2 + (seed % 60) / 10) * 10) / 10,
+    sitesActivated: study.sites, sitesPlanned: study.sites,
+    countriesActivated: study.countries, countriesPlanned: study.countries,
+    countries,
+    sites,
+    underperformingTop: {
+      shortfall: sites.slice().sort((a, b) => (a.actual - a.target) - (b.actual - b.target)).slice(0, 3).map((s, i) => ({ rank: i + 1, name: s.name, value: `${s.actual - s.target} pts` })),
+      pctBelow: sites.slice().filter(s => s.pct < 100).sort((a, b) => a.pct - b.pct).slice(0, 3).map((s, i) => ({ rank: i + 1, name: s.name, value: `-${Math.round(100 - s.pct)}%` })),
+    },
+    overperformingTop: {
+      shortfall: sites.slice().sort((a, b) => (b.actual - b.target) - (a.actual - a.target)).slice(0, 3).map((s, i) => ({ rank: i + 1, name: s.name, value: `+${Math.max(0, s.actual - s.target)} pts` })),
+      pctBelow: sites.slice().sort((a, b) => b.pct - a.pct).slice(0, 3).map((s, i) => ({ rank: i + 1, name: s.name, value: `+${Math.round(s.pct)}%` })),
+    },
+  };
+}
+
 function StudyOverviewPage() {
   const { studyId } = Route.useParams();
   const study = studies.find((s) => s.id === studyId);
-  const detail = detailMap[studyId] ?? {
-    asset: study?.program ?? "—",
-    assetLead: "—",
-    fsoModel: "—",
-    sponsor: "—",
-    designation: "—",
-    targetEnrollment: study?.target ?? 0,
-    plannedFPI: "—", actualFPI: "—", plannedLPI: "—", forecastLPI: "—",
-    enrollmentVsPlan: study?.percentVsPlan ?? 0,
-    enrollmentActual: study?.actual ?? 0,
-    enrollmentPlan: Math.round((study?.actual ?? 0) * 0.95),
-    rateActual: 0, ratePlan: 0,
-    screenFailureRate: 0, dropoutRate: 0,
-    sitesActivated: study?.sites ?? 0, sitesPlanned: study?.sites ?? 0,
-    countriesActivated: study?.countries ?? 0, countriesPlanned: study?.countries ?? 0,
-    countries: [],
-  } satisfies StudyDetail;
-
   const [range, setRange] = useState<"full" | "since" | "last3">("full");
   const [view, setView] = useState<"country" | "site">("country");
 
@@ -195,6 +276,7 @@ function StudyOverviewPage() {
     );
   }
 
+  const detail: StudyDetail = detailMap[studyId] ?? buildFallback(studyId, study);
   const cumulative = cumulativeData(detail.targetEnrollment, detail.enrollmentActual);
   const rates = rateData();
   const perfColor =
