@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { LayoutGrid, Search, Activity, ArrowRight, Sparkles } from "lucide-react";
+import { LayoutGrid, Search, ArrowRight, Sparkles } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -49,44 +49,6 @@ function HomePage() {
         </div>
       </section>
 
-      {/* Quick-access tiles */}
-      <section className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-3">
-        <Link
-          to="/portfolio"
-          className="group rounded-xl border border-border bg-card p-6 shadow-card transition-all hover:-translate-y-0.5 hover:shadow-card-hover"
-        >
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-            <LayoutGrid className="h-5 w-5" />
-          </div>
-          <h3 className="mt-4 text-base font-semibold text-foreground">Study Portfolio</h3>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Track every active study, enrollment health, and performance at a glance.
-          </p>
-        </Link>
-
-        <Link
-          to="/protocol-search"
-          className="group rounded-xl border border-border bg-card p-6 shadow-card transition-all hover:-translate-y-0.5 hover:shadow-card-hover"
-        >
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-info/10 text-info">
-            <Search className="h-5 w-5" />
-          </div>
-          <h3 className="mt-4 text-base font-semibold text-foreground">Protocol Search</h3>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Discover precedent protocols, endpoints, and design patterns across the industry.
-          </p>
-        </Link>
-
-        <div className="rounded-xl border border-border bg-card p-6 shadow-card">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-success/10 text-success">
-            <Activity className="h-5 w-5" />
-          </div>
-          <h3 className="mt-4 text-base font-semibold text-foreground">Live Signals</h3>
-          <p className="mt-1 text-sm text-muted-foreground">
-            30 active studies · 12,932 patients enrolled · 90.1% schedule adherence.
-          </p>
-        </div>
-      </section>
     </main>
   );
 }
