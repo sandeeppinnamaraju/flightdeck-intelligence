@@ -11,7 +11,7 @@ import { studies } from "@/lib/data";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Portfolio Dashboard — Flight Deck" },
+      { title: "Study Portfolio Dashboard — Flight Deck" },
       { name: "description", content: "Overview of active clinical trial portfolios, enrollment, and performance." },
     ],
   }),
