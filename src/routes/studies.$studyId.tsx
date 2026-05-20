@@ -50,8 +50,65 @@ const detailMap: Record<string, StudyDetail> = {
       { name: "South Korea", target: 17, actual: 0, pct: 0.0, sitesActive: 6, avgRate: 0.0, status: "Off Track" },
       { name: "Sweden", target: 29, actual: 0, pct: 0.0, sitesActive: 6, avgRate: 0.0, status: "Off Track" },
     ],
+    sites: [
+      { id: "S0001", name: "CANA-Cancer Center", country: "Canada", target: 20, actual: 16, pct: 80.0, status: "ON HOLD" },
+      { id: "S0002", name: "CANA-Research Institute", country: "Canada", target: 11, actual: 11, pct: 100.0, status: "SCREENING" },
+      { id: "S0008", name: "FRAN-General Hospital", country: "France", target: 10, actual: 0, pct: 0.0, status: "ON HOLD" },
+      { id: "S0009", name: "FRAN-Medical Center", country: "France", target: 8, actual: 0, pct: 0.0, status: "SCREENING" },
+      { id: "S0005", name: "MEXI-Cancer Center", country: "Mexico", target: 6, actual: 3, pct: 50.0, status: "ON HOLD" },
+      { id: "S0003", name: "MEXI-Clinical Center", country: "Mexico", target: 8, actual: 8, pct: 100.0, status: "ON HOLD" },
+      { id: "S0006", name: "MEXI-Medical Center", country: "Mexico", target: 7, actual: 0, pct: 0.0, status: "SCREENING" },
+      { id: "S0004", name: "MEXI-Research Institute", country: "Mexico", target: 6, actual: 5, pct: 83.3, status: "ON HOLD" },
+      { id: "S0007", name: "MEXI-University Hospital", country: "Mexico", target: 4, actual: 0, pct: 0.0, status: "CLOSED" },
+      { id: "S0017", name: "NEW-Clinical Center", country: "New Zealand", target: 6, actual: 0, pct: 0.0, status: "SCREENING" },
+      { id: "S0016", name: "NEW-Health System", country: "New Zealand", target: 9, actual: 0, pct: 0.0, status: "CLOSED" },
+      { id: "S0018", name: "NEW-Medical Center", country: "New Zealand", target: 7, actual: 0, pct: 0.0, status: "SCREENING" },
+      { id: "S0024", name: "SOUT-Clinical Center", country: "South Korea", target: 3, actual: 0, pct: 0.0, status: "ON HOLD" },
+      { id: "S0023", name: "SOUT-General Hospital", country: "South Korea", target: 3, actual: 0, pct: 0.0, status: "ON HOLD" },
+      { id: "S0019", name: "SOUT-Health System", country: "South Korea", target: 2, actual: 0, pct: 0.0, status: "CLOSED" },
+      { id: "S0020", name: "SOUT-Research Institute", country: "South Korea", target: 3, actual: 0, pct: 0.0, status: "CLOSED" },
+      { id: "S0021", name: "SOUT-Research Institute", country: "South Korea", target: 3, actual: 0, pct: 0.0, status: "ON HOLD" },
+      { id: "S0022", name: "SOUT-University Hospital", country: "South Korea", target: 3, actual: 0, pct: 0.0, status: "SCREENING" },
+      { id: "S0014", name: "SWED-Cancer Center", country: "Sweden", target: 6, actual: 0, pct: 0.0, status: "ON HOLD" },
+      { id: "S0013", name: "SWED-Cancer Center", country: "Sweden", target: 3, actual: 0, pct: 0.0, status: "ON HOLD" },
+      { id: "S0011", name: "SWED-Cancer Center", country: "Sweden", target: 5, actual: 0, pct: 0.0, status: "ON HOLD" },
+      { id: "S0010", name: "SWED-Clinical Center", country: "Sweden", target: 4, actual: 0, pct: 0.0, status: "ON HOLD" },
+      { id: "S0012", name: "SWED-General Hospital", country: "Sweden", target: 5, actual: 0, pct: 0.0, status: "ON HOLD" },
+      { id: "S0015", name: "SWED-Research Institute", country: "Sweden", target: 6, actual: 0, pct: 0.0, status: "ON HOLD" },
+    ],
+    underperformingTop: {
+      shortfall: [
+        { rank: 1, name: "NETH-University Hospital", value: "-23 pts" },
+        { rank: 2, name: "POLA-Medical Center", value: "-18 pts" },
+        { rank: 3, name: "POLA-Research Institute", value: "-15 pts" },
+      ],
+      pctBelow: [
+        { rank: 1, name: "NETH-University Hospital", value: "-100%" },
+        { rank: 2, name: "POLA-Medical Center", value: "-100%" },
+        { rank: 3, name: "POLA-Research Institute", value: "-100%" },
+      ],
+    },
+    overperformingTop: {
+      shortfall: [
+        { rank: 1, name: "CANA-Research Institute", value: "+11 pts" },
+        { rank: 2, name: "MEXI-Clinical Center", value: "+8 pts" },
+        { rank: 3, name: "CANA-Cancer Center", value: "+3 pts" },
+      ],
+      pctBelow: [
+        { rank: 1, name: "CANA-Research Institute", value: "+100%" },
+        { rank: 2, name: "MEXI-Clinical Center", value: "+100%" },
+        { rank: 3, name: "MEXI-Research Institute", value: "+83%" },
+      ],
+    },
   },
 };
+
+interface SiteRow {
+  id: string; name: string; country: string; target: number; actual: number; pct: number;
+  status: "ON HOLD" | "SCREENING" | "CLOSED" | "ENROLLING";
+}
+interface PerfList { rank: number; name: string; value: string }
+interface PerfGroups { shortfall: PerfList[]; pctBelow: PerfList[] }
 
 interface StudyDetail {
   asset: string;
