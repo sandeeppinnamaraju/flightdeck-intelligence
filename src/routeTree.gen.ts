@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as StudiesRouteImport } from './routes/studies'
 import { Route as ProtocolSearchRouteImport } from './routes/protocol-search'
+import { Route as PortfolioRouteImport } from './routes/portfolio'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as StudiesStudyIdRouteImport } from './routes/studies_.$studyId'
 
@@ -22,6 +23,11 @@ const StudiesRoute = StudiesRouteImport.update({
 const ProtocolSearchRoute = ProtocolSearchRouteImport.update({
   id: '/protocol-search',
   path: '/protocol-search',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PortfolioRoute = PortfolioRouteImport.update({
+  id: '/portfolio',
+  path: '/portfolio',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -37,12 +43,14 @@ const StudiesStudyIdRoute = StudiesStudyIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/portfolio': typeof PortfolioRoute
   '/protocol-search': typeof ProtocolSearchRoute
   '/studies': typeof StudiesRoute
   '/studies/$studyId': typeof StudiesStudyIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/portfolio': typeof PortfolioRoute
   '/protocol-search': typeof ProtocolSearchRoute
   '/studies': typeof StudiesRoute
   '/studies/$studyId': typeof StudiesStudyIdRoute
@@ -50,20 +58,33 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/portfolio': typeof PortfolioRoute
   '/protocol-search': typeof ProtocolSearchRoute
   '/studies': typeof StudiesRoute
   '/studies_/$studyId': typeof StudiesStudyIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/protocol-search' | '/studies' | '/studies/$studyId'
+  fullPaths:
+    | '/'
+    | '/portfolio'
+    | '/protocol-search'
+    | '/studies'
+    | '/studies/$studyId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/protocol-search' | '/studies' | '/studies/$studyId'
-  id: '__root__' | '/' | '/protocol-search' | '/studies' | '/studies_/$studyId'
+  to: '/' | '/portfolio' | '/protocol-search' | '/studies' | '/studies/$studyId'
+  id:
+    | '__root__'
+    | '/'
+    | '/portfolio'
+    | '/protocol-search'
+    | '/studies'
+    | '/studies_/$studyId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  PortfolioRoute: typeof PortfolioRoute
   ProtocolSearchRoute: typeof ProtocolSearchRoute
   StudiesRoute: typeof StudiesRoute
   StudiesStudyIdRoute: typeof StudiesStudyIdRoute
@@ -85,6 +106,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProtocolSearchRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/portfolio': {
+      id: '/portfolio'
+      path: '/portfolio'
+      fullPath: '/portfolio'
+      preLoaderRoute: typeof PortfolioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -104,6 +132,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  PortfolioRoute: PortfolioRoute,
   ProtocolSearchRoute: ProtocolSearchRoute,
   StudiesRoute: StudiesRoute,
   StudiesStudyIdRoute: StudiesStudyIdRoute,
