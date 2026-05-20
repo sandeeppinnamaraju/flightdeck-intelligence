@@ -504,9 +504,8 @@ function StudyOverviewPage() {
                       : c.status === "At Risk" ? "bg-warning"
                       : "bg-danger";
                     return (
-                      <>
+                      <React.Fragment key={c.name}>
                       <tr
-                        key={c.name}
                         onClick={() => toggle(`c-${c.name}`)}
                         className="cursor-pointer border-b border-border/60 last:border-0 hover:bg-muted/40"
                       >
