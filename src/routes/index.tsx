@@ -21,6 +21,8 @@ export const Route = createFileRoute("/")({
 
 function PortfolioPage() {
   const [view, setView] = useState<"table" | "cards">("cards");
+  const [filters, setFilters] = useState<FilterState>(emptyFilters);
+  const filtered = useMemo(() => filterStudies(studies, filters), [filters]);
 
   return (
     <main className="mx-auto max-w-[1600px] px-6 py-6">
@@ -32,7 +34,12 @@ function PortfolioPage() {
       </div>
 
       <div className="mt-5">
-        <PortfolioFilters total={36} />
+        <PortfolioFilters
+          total={studies.length}
+          shown={filtered.length}
+          filters={filters}
+          onChange={setFilters}
+        />
       </div>
 
       <div className="mt-5 grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-6">
@@ -56,9 +63,9 @@ function PortfolioPage() {
 
       <div className="mt-3">
         {view === "table" ? (
-          <StudyTable studies={studies} />
+          <StudyTable studies={filtered} />
         ) : (
-          <StudyCardGrid studies={studies.slice(0, 9)} />
+          <StudyCardGrid studies={filtered.slice(0, 9)} />
         )}
       </div>
     </main>
