@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { ChevronsUpDown, Columns3 } from "lucide-react";
 import type { Study } from "@/lib/data";
 import { PriorityBadge, PerformanceBadge } from "./badges";
