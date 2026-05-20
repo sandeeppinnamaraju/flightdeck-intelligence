@@ -1,22 +1,52 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Search, Calendar, ChevronDown, Check, X } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { therapeuticAreas } from "@/lib/data";
+import type { Study } from "@/lib/data";
+import { filterStudies } from "@/lib/filter-studies";
+import { getStudyRegions, REGIONS } from "@/lib/study-derived";
 import { cn } from "@/lib/utils";
 
-const phases = ["Ph I", "Ph II", "Ph III", "Ph IV"];
-const statuses = ["Recruiting", "Planned", "Follow-up"];
-const portfolios = [
-  "Oncology Portfolio",
-  "Cardiovascular Portfolio",
-  "Neurology Portfolio",
-  "Immunology Portfolio",
-  "Respiratory Portfolio",
-];
-const programs = ["ZPH-505", "OMP-770", "GEN-330", "PHX-873", "NXG-810", "CRX-255", "VRD-698"];
-const regions = ["North America", "EU", "APAC", "LATAM", "MEA"];
 const dateOptions = ["Last 30 days", "Last 90 days", "YTD", "Last 12 months", "All time"];
+const phaseOrder = ["Ph I", "Ph II", "Ph III", "Ph IV"];
+
+function uniqSorted<T>(arr: T[], order?: T[]): T[] {
+  const s = Array.from(new Set(arr));
+  if (order) {
+    return s.sort((a, b) => {
+      const ai = order.indexOf(a);
+      const bi = order.indexOf(b);
+      if (ai === -1 && bi === -1) return String(a).localeCompare(String(b));
+      if (ai === -1) return 1;
+      if (bi === -1) return -1;
+      return ai - bi;
+    });
+  }
+  return s.sort((a, b) => String(a).localeCompare(String(b)));
+}
+
+
+export interface FilterState {
+  search: string;
+  areas: string[];
+  phase: string | null;
+  status: string | null;
+  portfolio: string | null;
+  program: string | null;
+  region: string | null;
+  dateRange: string | null;
+}
+
+export const emptyFilters: FilterState = {
+  search: "",
+  areas: [],
+  phase: null,
+  status: null,
+  portfolio: null,
+  program: null,
+  region: null,
+  dateRange: null,
+};
 
 function SingleSelect({
   label,
@@ -56,9 +86,11 @@ function SingleSelect({
 }
 
 function MultiSelectTA({
+  options,
   selected,
   onChange,
 }: {
+  options: string[];
   selected: string[];
   onChange: (v: string[]) => void;
 }) {
@@ -94,7 +126,7 @@ function MultiSelectTA({
           )}
         </div>
         <div className="max-h-64 overflow-y-auto">
-          {therapeuticAreas.map((a) => {
+          {options.map((a: string) => {
             const isSel = selected.includes(a);
             return (
               <button
@@ -120,17 +152,50 @@ function MultiSelectTA({
   );
 }
 
-export function PortfolioFilters({ total }: { total: number }) {
-  const [areas, setAreas] = useState<string[]>([]);
-  const [phase, setPhase] = useState<string | null>(null);
-  const [status, setStatus] = useState<string | null>(null);
-  const [portfolio, setPortfolio] = useState<string | null>(null);
-  const [program, setProgram] = useState<string | null>(null);
-  const [region, setRegion] = useState<string | null>(null);
-  const [dateRange, setDateRange] = useState<string | null>(null);
+export function PortfolioFilters({
+  studies,
+  total,
+  shown,
+  filters,
+  onChange,
+}: {
+  studies: Study[];
+  total: number;
+  shown: number;
+  filters: FilterState;
+  onChange: (f: FilterState) => void;
+}) {
+  const set = <K extends keyof FilterState>(key: K, value: FilterState[K]) =>
+    onChange({ ...filters, [key]: value });
+
+  const available = useMemo(() => {
+    const opts = (key: keyof FilterState, pick: (s: Study) => string, order?: string[]) =>
+      uniqSorted(filterStudies(studies, filters, key).map(pick), order);
+    const regionPool = new Set<string>();
+    for (const s of filterStudies(studies, filters, "region")) {
+      for (const r of getStudyRegions(s)) regionPool.add(r);
+    }
+    return {
+      areas: opts("areas", (s) => s.therapeuticArea),
+      phases: opts("phase", (s) => s.phase, phaseOrder),
+      statuses: opts("status", (s) => s.status),
+      portfolios: opts("portfolio", (s) => s.portfolio),
+      programs: opts("program", (s) => s.program),
+      regions: REGIONS.filter((r) => regionPool.has(r)),
+    };
+  }, [studies, filters]);
+
+
 
   const hasAny =
-    areas.length > 0 || phase || status || portfolio || program || region || dateRange;
+    filters.areas.length > 0 ||
+    filters.phase ||
+    filters.status ||
+    filters.portfolio ||
+    filters.program ||
+    filters.region ||
+    filters.dateRange ||
+    filters.search.length > 0;
 
   return (
     <div className="space-y-3">
@@ -139,38 +204,40 @@ export function PortfolioFilters({ total }: { total: number }) {
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <input
             type="text"
+            value={filters.search}
+            onChange={(e) => set("search", e.target.value)}
             placeholder="Search by ID, title, indication..."
             className="h-10 w-full rounded-lg border border-input bg-card pl-9 pr-3 text-sm placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/20"
           />
         </div>
         <p className="text-sm text-muted-foreground">
-          Showing <span className="font-semibold text-foreground">1–25</span> of{" "}
+          Showing <span className="font-semibold text-foreground">{shown}</span> of{" "}
           <span className="font-semibold text-foreground">{total}</span> studies
         </p>
       </div>
       <div className="flex flex-wrap items-center gap-2">
-        <MultiSelectTA selected={areas} onChange={setAreas} />
-        <SingleSelect label="Phase" options={phases} value={phase} onChange={setPhase} />
-        <SingleSelect label="Study Status" options={statuses} value={status} onChange={setStatus} />
+        <MultiSelectTA options={available.areas} selected={filters.areas} onChange={(v) => set("areas", v)} />
+        <SingleSelect label="Phase" options={available.phases} value={filters.phase} onChange={(v) => set("phase", v)} />
+        <SingleSelect label="Study Status" options={available.statuses} value={filters.status} onChange={(v) => set("status", v)} />
         <SingleSelect
           label="Portfolio"
-          options={portfolios}
-          value={portfolio}
-          onChange={setPortfolio}
+          options={available.portfolios}
+          value={filters.portfolio}
+          onChange={(v) => set("portfolio", v)}
         />
-        <SingleSelect label="Program" options={programs} value={program} onChange={setProgram} />
-        <SingleSelect label="Region" options={regions} value={region} onChange={setRegion} />
+        <SingleSelect label="Program" options={available.programs} value={filters.program} onChange={(v) => set("program", v)} />
+        <SingleSelect label="Region" options={available.regions} value={filters.region} onChange={(v) => set("region", v)} />
         <Select
-          value={dateRange ?? ""}
-          onValueChange={(v) => setDateRange(v === "__all__" ? null : v)}
+          value={filters.dateRange ?? ""}
+          onValueChange={(v) => set("dateRange", v === "__all__" ? null : v)}
         >
           <SelectTrigger className="h-9 w-auto gap-1.5 rounded-lg border border-input bg-card px-3 text-sm">
             <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
             <SelectValue placeholder="FPI / LPO">
-              {dateRange ? (
+              {filters.dateRange ? (
                 <span>
                   <span className="text-muted-foreground">FPI / LPO:</span>{" "}
-                  <span className="font-medium">{dateRange}</span>
+                  <span className="font-medium">{filters.dateRange}</span>
                 </span>
               ) : (
                 "FPI / LPO"
@@ -188,15 +255,7 @@ export function PortfolioFilters({ total }: { total: number }) {
         </Select>
         {hasAny && (
           <button
-            onClick={() => {
-              setAreas([]);
-              setPhase(null);
-              setStatus(null);
-              setPortfolio(null);
-              setProgram(null);
-              setRegion(null);
-              setDateRange(null);
-            }}
+            onClick={() => onChange(emptyFilters)}
             className="inline-flex h-9 items-center gap-1 rounded-lg px-2 text-sm text-muted-foreground hover:text-foreground"
           >
             <X className="h-3.5 w-3.5" />
@@ -204,16 +263,16 @@ export function PortfolioFilters({ total }: { total: number }) {
           </button>
         )}
       </div>
-      {areas.length > 0 && (
+      {filters.areas.length > 0 && (
         <div className="flex flex-wrap items-center gap-1.5">
-          {areas.map((a) => (
+          {filters.areas.map((a) => (
             <span
               key={a}
               className="inline-flex items-center gap-1 rounded-full border border-input bg-card px-2 py-0.5 text-xs text-foreground"
             >
               {a}
               <button
-                onClick={() => setAreas(areas.filter((x) => x !== a))}
+                onClick={() => set("areas", filters.areas.filter((x) => x !== a))}
                 className="text-muted-foreground hover:text-foreground"
               >
                 <X className="h-3 w-3" />

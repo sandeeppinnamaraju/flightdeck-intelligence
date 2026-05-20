@@ -102,16 +102,85 @@ function InputView() {
         <div className="mt-4 flex flex-wrap gap-2">
           <StatChip icon={<Database className="h-3.5 w-3.5" />} label="36 protocols indexed" />
           <StatChip icon={<Layers className="h-3.5 w-3.5" />} label="6 therapy areas" />
-          <StatChip icon={<Cpu className="h-3.5 w-3.5" />} label="Vector AI · all-MiniLM-L6-v2" />
         </div>
       </section>
 
       {/* Form card */}
       <section className="mt-6 rounded-2xl border border-border bg-card p-6 shadow-card">
+        {/* Therapeutic Area */}
+        <div>
+          <FieldLabel icon={<Filter className="h-4 w-4 text-muted-foreground" />} optional>
+            Therapeutic Area
+            <span className="ml-1 font-normal text-muted-foreground">— narrows results</span>
+          </FieldLabel>
+
+          <div className="mt-2">
+            <Popover open={open} onOpenChange={setOpen}>
+              <PopoverTrigger asChild>
+                <button
+                  type="button"
+                  className="inline-flex h-10 min-w-[260px] items-center justify-between gap-2 rounded-lg border border-input bg-card px-3 text-sm text-foreground hover:bg-muted"
+                >
+                  {triggerLabel}
+                  <ChevronDown
+                    className={cn(
+                      "h-4 w-4 text-muted-foreground transition-transform",
+                      open && "rotate-180",
+                    )}
+                  />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent align="start" sideOffset={6} className="w-[280px] p-0">
+                <div className="flex items-center justify-between border-b border-border px-3 py-2">
+                  <span className="text-xs font-medium text-muted-foreground">
+                    {selected.length} selected
+                  </span>
+                  {selected.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={clearAll}
+                      className="text-xs font-medium text-primary hover:underline"
+                    >
+                      Clear all
+                    </button>
+                  )}
+                </div>
+                <div className="max-h-72 overflow-auto py-1">
+                  {therapeuticAreas.map((a) => {
+                    const checked = selected.includes(a);
+                    return (
+                      <button
+                        key={a}
+                        type="button"
+                        onClick={() => toggleArea(a)}
+                        className="flex w-full cursor-pointer items-center gap-2.5 px-3 py-1.5 text-left text-sm text-foreground hover:bg-muted"
+                      >
+                        <span
+                          className={cn(
+                            "flex h-4 w-4 items-center justify-center rounded border",
+                            checked
+                              ? "border-primary bg-primary text-primary-foreground"
+                              : "border-input bg-card",
+                          )}
+                        >
+                          {checked && <Check className="h-3 w-3" strokeWidth={3} />}
+                        </span>
+                        <span className="flex-1">{a}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </PopoverContent>
+            </Popover>
+          </div>
+        </div>
+
         {/* Summary */}
-        <FieldLabel icon={<FileText className="h-4 w-4 text-primary" />} required>
-          Protocol Summary
-        </FieldLabel>
+        <div className="mt-6">
+          <FieldLabel icon={<FileText className="h-4 w-4 text-primary" />} required>
+            Protocol Summary
+          </FieldLabel>
+        </div>
         <div className="relative mt-2">
           <textarea
             value={summary}
@@ -178,74 +247,6 @@ function InputView() {
                 {exclusion.length}/{max}
               </span>
             </div>
-          </div>
-        </div>
-
-        {/* Therapeutic Area */}
-        <div className="mt-6">
-          <FieldLabel icon={<Filter className="h-4 w-4 text-muted-foreground" />} optional>
-            Therapeutic Area
-            <span className="ml-1 font-normal text-muted-foreground">— narrows results</span>
-          </FieldLabel>
-
-          <div className="mt-2">
-            <Popover open={open} onOpenChange={setOpen}>
-              <PopoverTrigger asChild>
-                <button
-                  type="button"
-                  className="inline-flex h-10 min-w-[260px] items-center justify-between gap-2 rounded-lg border border-input bg-card px-3 text-sm text-foreground hover:bg-muted"
-                >
-                  {triggerLabel}
-                  <ChevronDown
-                    className={cn(
-                      "h-4 w-4 text-muted-foreground transition-transform",
-                      open && "rotate-180",
-                    )}
-                  />
-                </button>
-              </PopoverTrigger>
-              <PopoverContent align="start" sideOffset={6} className="w-[280px] p-0">
-                <div className="flex items-center justify-between border-b border-border px-3 py-2">
-                  <span className="text-xs font-medium text-muted-foreground">
-                    {selected.length} selected
-                  </span>
-                  {selected.length > 0 && (
-                    <button
-                      type="button"
-                      onClick={clearAll}
-                      className="text-xs font-medium text-primary hover:underline"
-                    >
-                      Clear all
-                    </button>
-                  )}
-                </div>
-                <div className="max-h-72 overflow-auto py-1">
-                  {therapeuticAreas.map((a) => {
-                    const checked = selected.includes(a);
-                    return (
-                      <button
-                        key={a}
-                        type="button"
-                        onClick={() => toggleArea(a)}
-                        className="flex w-full cursor-pointer items-center gap-2.5 px-3 py-1.5 text-left text-sm text-foreground hover:bg-muted"
-                      >
-                        <span
-                          className={cn(
-                            "flex h-4 w-4 items-center justify-center rounded border",
-                            checked
-                              ? "border-primary bg-primary text-primary-foreground"
-                              : "border-input bg-card",
-                          )}
-                        >
-                          {checked && <Check className="h-3 w-3" strokeWidth={3} />}
-                        </span>
-                        <span className="flex-1">{a}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </PopoverContent>
-            </Popover>
           </div>
         </div>
 
@@ -388,7 +389,7 @@ function LegendDot({ color, label }: { color: string; label: string }) {
 function ResultCard({ r }: { r: ProtocolResult }) {
   const tier = matchTier(r.match);
   const s = tierStyles(tier);
-  const [explainOpen, setExplainOpen] = useState(false);
+  
 
   return (
     <article
@@ -443,23 +444,8 @@ function ResultCard({ r }: { r: ProtocolResult }) {
           />
         </div>
 
-        {/* Explain match */}
-        <div className="mt-4 flex items-center justify-between">
-          <Popover open={explainOpen} onOpenChange={setExplainOpen}>
-            <PopoverTrigger asChild>
-              <button
-                type="button"
-                className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
-              >
-                <Sparkles className="h-4 w-4" />
-                Explain match with AI
-              </button>
-            </PopoverTrigger>
-            <PopoverContent align="start" className="w-96 p-0">
-              <ExplainMatch r={r} />
-            </PopoverContent>
-          </Popover>
-
+        {/* Footer */}
+        <div className="mt-4 flex items-center justify-end">
           <Link
             to="/protocol-search"
             search={{ mode: "detail", id: r.id }}
@@ -573,14 +559,14 @@ function ExplainMatch({ r }: { r: ProtocolResult }) {
 /* ----------------------------- DETAIL VIEW ------------------------------ */
 
 const SITES = [
-  { name: "Sarah Cannon Research Institute", country: "United States", target: 23, actual: 8, planned: 45, actualMo: 45, tier: "Low" },
-  { name: "Oncology Consultants (OC) — Houston", country: "United States", target: 14, actual: 4, planned: 45, actualMo: 45, tier: "Low" },
-  { name: "Shanghai East Hospital, Tongji", country: "China", target: 20, actual: 6, planned: 45, actualMo: 45, tier: "Low" },
-  { name: "Tianjin Medical University Cancer Inst.", country: "China", target: 14, actual: 5, planned: 45, actualMo: 45, tier: "Low" },
-  { name: "Centre Léon Bérard", country: "France", target: 35, actual: 9, planned: 45, actualMo: 45, tier: "Low" },
-  { name: "CHU Hôpital de la Timone", country: "France", target: 26, actual: 8, planned: 45, actualMo: 45, tier: "Low" },
-  { name: "Institut de Cancérologie de l'Ouest", country: "France", target: 26, actual: 10, planned: 45, actualMo: 45, tier: "Low" },
-  { name: "Institut Universitaire du Cancer", country: "France", target: 13, actual: 4, planned: 45, actualMo: 45, tier: "Low" },
+  { name: "Sarah Cannon Research Institute", country: "United States", target: 23, actual: 8, planned: 45, actualMo: 45, siteType: "Academic Medical Center", archetype: "Anchor" },
+  { name: "Oncology Consultants (OC) — Houston", country: "United States", target: 14, actual: 4, planned: 45, actualMo: 45, siteType: "Community Hospital", archetype: "Emerging Partner" },
+  { name: "Shanghai East Hospital, Tongji", country: "China", target: 20, actual: 6, planned: 45, actualMo: 45, siteType: "Research Network", archetype: "Competitive Battleground" },
+  { name: "Tianjin Medical University Cancer Inst.", country: "China", target: 14, actual: 5, planned: 45, actualMo: 45, siteType: "Academic Medical Center", archetype: "Anchor" },
+  { name: "Centre Léon Bérard", country: "France", target: 35, actual: 9, planned: 45, actualMo: 45, siteType: "Community Hospital", archetype: "Emerging Partner" },
+  { name: "CHU Hôpital de la Timone", country: "France", target: 26, actual: 8, planned: 45, actualMo: 45, siteType: null, archetype: null },
+  { name: "Institut de Cancérologie de l'Ouest", country: "France", target: 26, actual: 10, planned: 45, actualMo: 45, siteType: null, archetype: null },
+  { name: "Institut Universitaire du Cancer", country: "France", target: 13, actual: 4, planned: 45, actualMo: 45, siteType: null, archetype: null },
 ];
 
 function DetailView({ id }: { id?: string }) {
@@ -738,13 +724,14 @@ function DetailView({ id }: { id?: string }) {
             <thead>
               <tr className="border-b border-border text-left text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                 <th className="px-6 py-2.5">Site</th>
-                <th className="py-2.5">Country</th>
-                <th className="py-2.5 text-right">Target</th>
-                <th className="py-2.5 text-right">Actual</th>
-                <th className="py-2.5">vs Target</th>
-                <th className="py-2.5 text-right">Planned (mo)</th>
-                <th className="py-2.5 text-right">Actual (mo)</th>
-                <th className="px-6 py-2.5">Tier</th>
+                <th className="px-4 py-2.5">Country</th>
+                <th className="px-4 py-2.5 text-right">Target</th>
+                <th className="px-4 py-2.5 text-right">Actual</th>
+                <th className="px-4 py-2.5">vs Target</th>
+                <th className="px-4 py-2.5 text-right">Planned (mo)</th>
+                <th className="px-4 py-2.5 text-right">Actual (mo)</th>
+                <th className="px-4 py-2.5">Site Type</th>
+                <th className="px-6 py-2.5">Archetype</th>
               </tr>
             </thead>
             <tbody>
@@ -753,10 +740,10 @@ function DetailView({ id }: { id?: string }) {
                 return (
                   <tr key={s.name} className="border-b border-border last:border-0 hover:bg-muted/30">
                     <td className="px-6 py-3 font-medium text-foreground">{s.name}</td>
-                    <td className="py-3 text-muted-foreground">{s.country}</td>
-                    <td className="py-3 text-right tabular-nums">{s.target}</td>
-                    <td className="py-3 text-right tabular-nums">{s.actual}</td>
-                    <td className="py-3">
+                    <td className="px-4 py-3 text-muted-foreground">{s.country}</td>
+                    <td className="px-4 py-3 text-right tabular-nums">{s.target}</td>
+                    <td className="px-4 py-3 text-right tabular-nums">{s.actual}</td>
+                    <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
                         <div className="h-1.5 w-20 overflow-hidden rounded-full bg-muted">
                           <div
@@ -781,12 +768,23 @@ function DetailView({ id }: { id?: string }) {
                         </span>
                       </div>
                     </td>
-                    <td className="py-3 text-right tabular-nums">{s.planned}</td>
-                    <td className="py-3 text-right tabular-nums">{s.actualMo}</td>
+                    <td className="px-4 py-3 text-right tabular-nums">{s.planned}</td>
+                    <td className="px-4 py-3 text-right tabular-nums">{s.actualMo}</td>
+                    <td className="px-4 py-3">
+                      {s.siteType ? (
+                        <span className="text-xs text-foreground">{s.siteType}</span>
+                      ) : (
+                        <span className="text-xs text-muted-foreground/60">—</span>
+                      )}
+                    </td>
                     <td className="px-6 py-3">
-                      <span className="inline-flex rounded-md bg-danger-bg px-2 py-0.5 text-[11px] font-semibold text-danger-foreground">
-                        {s.tier}
-                      </span>
+                      {s.archetype ? (
+                        <span className="inline-flex rounded-md bg-accent px-2 py-0.5 text-[11px] font-semibold text-accent-foreground">
+                          {s.archetype}
+                        </span>
+                      ) : (
+                        <span className="text-xs text-muted-foreground/60">—</span>
+                      )}
                     </td>
                   </tr>
                 );
