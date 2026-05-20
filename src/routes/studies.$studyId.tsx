@@ -7,6 +7,7 @@ import {
 } from "recharts";
 import { studies } from "@/lib/data";
 import { cn } from "@/lib/utils";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 export const Route = createFileRoute("/studies/$studyId")({
   head: ({ params }) => ({
@@ -49,8 +50,65 @@ const detailMap: Record<string, StudyDetail> = {
       { name: "South Korea", target: 17, actual: 0, pct: 0.0, sitesActive: 6, avgRate: 0.0, status: "Off Track" },
       { name: "Sweden", target: 29, actual: 0, pct: 0.0, sitesActive: 6, avgRate: 0.0, status: "Off Track" },
     ],
+    sites: [
+      { id: "S0001", name: "CANA-Cancer Center", country: "Canada", target: 20, actual: 16, pct: 80.0, status: "ON HOLD" },
+      { id: "S0002", name: "CANA-Research Institute", country: "Canada", target: 11, actual: 11, pct: 100.0, status: "SCREENING" },
+      { id: "S0008", name: "FRAN-General Hospital", country: "France", target: 10, actual: 0, pct: 0.0, status: "ON HOLD" },
+      { id: "S0009", name: "FRAN-Medical Center", country: "France", target: 8, actual: 0, pct: 0.0, status: "SCREENING" },
+      { id: "S0005", name: "MEXI-Cancer Center", country: "Mexico", target: 6, actual: 3, pct: 50.0, status: "ON HOLD" },
+      { id: "S0003", name: "MEXI-Clinical Center", country: "Mexico", target: 8, actual: 8, pct: 100.0, status: "ON HOLD" },
+      { id: "S0006", name: "MEXI-Medical Center", country: "Mexico", target: 7, actual: 0, pct: 0.0, status: "SCREENING" },
+      { id: "S0004", name: "MEXI-Research Institute", country: "Mexico", target: 6, actual: 5, pct: 83.3, status: "ON HOLD" },
+      { id: "S0007", name: "MEXI-University Hospital", country: "Mexico", target: 4, actual: 0, pct: 0.0, status: "CLOSED" },
+      { id: "S0017", name: "NEW-Clinical Center", country: "New Zealand", target: 6, actual: 0, pct: 0.0, status: "SCREENING" },
+      { id: "S0016", name: "NEW-Health System", country: "New Zealand", target: 9, actual: 0, pct: 0.0, status: "CLOSED" },
+      { id: "S0018", name: "NEW-Medical Center", country: "New Zealand", target: 7, actual: 0, pct: 0.0, status: "SCREENING" },
+      { id: "S0024", name: "SOUT-Clinical Center", country: "South Korea", target: 3, actual: 0, pct: 0.0, status: "ON HOLD" },
+      { id: "S0023", name: "SOUT-General Hospital", country: "South Korea", target: 3, actual: 0, pct: 0.0, status: "ON HOLD" },
+      { id: "S0019", name: "SOUT-Health System", country: "South Korea", target: 2, actual: 0, pct: 0.0, status: "CLOSED" },
+      { id: "S0020", name: "SOUT-Research Institute", country: "South Korea", target: 3, actual: 0, pct: 0.0, status: "CLOSED" },
+      { id: "S0021", name: "SOUT-Research Institute", country: "South Korea", target: 3, actual: 0, pct: 0.0, status: "ON HOLD" },
+      { id: "S0022", name: "SOUT-University Hospital", country: "South Korea", target: 3, actual: 0, pct: 0.0, status: "SCREENING" },
+      { id: "S0014", name: "SWED-Cancer Center", country: "Sweden", target: 6, actual: 0, pct: 0.0, status: "ON HOLD" },
+      { id: "S0013", name: "SWED-Cancer Center", country: "Sweden", target: 3, actual: 0, pct: 0.0, status: "ON HOLD" },
+      { id: "S0011", name: "SWED-Cancer Center", country: "Sweden", target: 5, actual: 0, pct: 0.0, status: "ON HOLD" },
+      { id: "S0010", name: "SWED-Clinical Center", country: "Sweden", target: 4, actual: 0, pct: 0.0, status: "ON HOLD" },
+      { id: "S0012", name: "SWED-General Hospital", country: "Sweden", target: 5, actual: 0, pct: 0.0, status: "ON HOLD" },
+      { id: "S0015", name: "SWED-Research Institute", country: "Sweden", target: 6, actual: 0, pct: 0.0, status: "ON HOLD" },
+    ],
+    underperformingTop: {
+      shortfall: [
+        { rank: 1, name: "NETH-University Hospital", value: "-23 pts" },
+        { rank: 2, name: "POLA-Medical Center", value: "-18 pts" },
+        { rank: 3, name: "POLA-Research Institute", value: "-15 pts" },
+      ],
+      pctBelow: [
+        { rank: 1, name: "NETH-University Hospital", value: "-100%" },
+        { rank: 2, name: "POLA-Medical Center", value: "-100%" },
+        { rank: 3, name: "POLA-Research Institute", value: "-100%" },
+      ],
+    },
+    overperformingTop: {
+      shortfall: [
+        { rank: 1, name: "CANA-Research Institute", value: "+11 pts" },
+        { rank: 2, name: "MEXI-Clinical Center", value: "+8 pts" },
+        { rank: 3, name: "CANA-Cancer Center", value: "+3 pts" },
+      ],
+      pctBelow: [
+        { rank: 1, name: "CANA-Research Institute", value: "+100%" },
+        { rank: 2, name: "MEXI-Clinical Center", value: "+100%" },
+        { rank: 3, name: "MEXI-Research Institute", value: "+83%" },
+      ],
+    },
   },
 };
+
+interface SiteRow {
+  id: string; name: string; country: string; target: number; actual: number; pct: number;
+  status: "ON HOLD" | "SCREENING" | "CLOSED" | "ENROLLING";
+}
+interface PerfItem { rank: number; name: string; value: string }
+interface PerfGroups { shortfall: PerfItem[]; pctBelow: PerfItem[] }
 
 interface StudyDetail {
   asset: string;
@@ -78,6 +136,9 @@ interface StudyDetail {
     name: string; target: number; actual: number; pct: number;
     sitesActive: number; avgRate: number; status: "On Track" | "At Risk" | "Off Track";
   }>;
+  sites?: SiteRow[];
+  underperformingTop?: PerfGroups;
+  overperformingTop?: PerfGroups;
 }
 
 function cumulativeData(target: number, actual: number) {
@@ -303,12 +364,18 @@ function StudyOverviewPage() {
             </button>
           </div>
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1 rounded-md border border-danger/30 bg-danger-bg/50 px-2.5 py-1 text-xs font-medium text-danger-foreground">
-              <TrendingDown className="h-3.5 w-3.5" /> Underperforming
-            </span>
-            <span className="inline-flex items-center gap-1 rounded-md border border-success/30 bg-success-bg/50 px-2.5 py-1 text-xs font-medium text-success-foreground">
-              <TrendingUp className="h-3.5 w-3.5" /> Overperforming
-            </span>
+            <PerfPopover
+              tone="down"
+              label="Underperforming"
+              title="Underperforming Sites — Top 3"
+              groups={detail.underperformingTop}
+            />
+            <PerfPopover
+              tone="up"
+              label="Overperforming"
+              title="Overperforming Sites — Top 3"
+              groups={detail.overperformingTop}
+            />
           </div>
         </div>
 
@@ -319,54 +386,99 @@ function StudyOverviewPage() {
             </h3>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-border text-left text-xs font-semibold text-muted-foreground">
-                  <th className="px-4 py-3 font-medium" />
-                  <th className="px-4 py-3 font-medium">{view === "country" ? "Country" : "Site"}</th>
-                  <th className="px-4 py-3 text-right font-medium">Target</th>
-                  <th className="px-4 py-3 text-right font-medium">Actual</th>
-                  <th className="px-4 py-3 text-right font-medium">% Enrolled</th>
-                  <th className="px-4 py-3 text-right font-medium">Sites Active</th>
-                  <th className="px-4 py-3 text-right font-medium">Avg Rate</th>
-                  <th className="px-4 py-3 text-center font-medium">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {detail.countries.map((c) => {
-                  const sColor =
-                    c.status === "On Track" ? "bg-success-bg text-success-foreground"
-                    : c.status === "At Risk" ? "bg-warning-bg text-warning-foreground"
-                    : "bg-danger-bg text-danger-foreground";
-                  const dotColor =
-                    c.status === "On Track" ? "bg-success"
-                    : c.status === "At Risk" ? "bg-warning"
-                    : "bg-danger";
-                  return (
-                    <tr key={c.name} className="border-b border-border/60 last:border-0 hover:bg-muted/40">
-                      <td className="px-4 py-3 text-muted-foreground">
-                        <ChevronRight className="h-4 w-4" />
-                      </td>
-                      <td className="px-4 py-3 font-medium text-foreground">{c.name}</td>
-                      <td className="px-4 py-3 text-right tabular-nums text-foreground">{c.target}</td>
-                      <td className="px-4 py-3 text-right tabular-nums text-foreground">{c.actual}</td>
-                      <td className="px-4 py-3 text-right tabular-nums text-foreground">{c.pct.toFixed(1)}%</td>
-                      <td className="px-4 py-3 text-right tabular-nums text-foreground">{c.sitesActive}</td>
-                      <td className="px-4 py-3 text-right tabular-nums text-foreground">{c.avgRate.toFixed(1)}</td>
-                      <td className="px-4 py-3 text-center">
-                        <span className={cn("inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium", sColor)}>
-                          <span className={cn("h-1.5 w-1.5 rounded-full", dotColor)} />
-                          {c.status}
-                        </span>
-                      </td>
-                    </tr>
-                  );
-                })}
-                {detail.countries.length === 0 && (
-                  <tr><td colSpan={8} className="px-4 py-8 text-center text-muted-foreground">No breakdown data available.</td></tr>
-                )}
-              </tbody>
-            </table>
+            {view === "country" ? (
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border text-left text-xs font-semibold text-muted-foreground">
+                    <th className="px-4 py-3 font-medium" />
+                    <th className="px-4 py-3 font-medium">Country</th>
+                    <th className="px-4 py-3 text-right font-medium">Target</th>
+                    <th className="px-4 py-3 text-right font-medium">Actual</th>
+                    <th className="px-4 py-3 text-right font-medium">% Enrolled</th>
+                    <th className="px-4 py-3 text-right font-medium">Sites Active</th>
+                    <th className="px-4 py-3 text-right font-medium">Avg Rate</th>
+                    <th className="px-4 py-3 text-center font-medium">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {detail.countries.map((c) => {
+                    const sColor =
+                      c.status === "On Track" ? "bg-success-bg text-success-foreground"
+                      : c.status === "At Risk" ? "bg-warning-bg text-warning-foreground"
+                      : "bg-danger-bg text-danger-foreground";
+                    const dotColor =
+                      c.status === "On Track" ? "bg-success"
+                      : c.status === "At Risk" ? "bg-warning"
+                      : "bg-danger";
+                    return (
+                      <tr key={c.name} className="border-b border-border/60 last:border-0 hover:bg-muted/40">
+                        <td className="px-4 py-3 text-muted-foreground"><ChevronRight className="h-4 w-4" /></td>
+                        <td className="px-4 py-3 font-medium text-foreground">{c.name}</td>
+                        <td className="px-4 py-3 text-right tabular-nums text-foreground">{c.target}</td>
+                        <td className="px-4 py-3 text-right tabular-nums text-foreground">{c.actual}</td>
+                        <td className="px-4 py-3 text-right tabular-nums text-foreground">{c.pct.toFixed(1)}%</td>
+                        <td className="px-4 py-3 text-right tabular-nums text-foreground">{c.sitesActive}</td>
+                        <td className="px-4 py-3 text-right tabular-nums text-foreground">{c.avgRate.toFixed(1)}</td>
+                        <td className="px-4 py-3 text-center">
+                          <span className={cn("inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium", sColor)}>
+                            <span className={cn("h-1.5 w-1.5 rounded-full", dotColor)} />
+                            {c.status}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                  {detail.countries.length === 0 && (
+                    <tr><td colSpan={8} className="px-4 py-8 text-center text-muted-foreground">No breakdown data available.</td></tr>
+                  )}
+                </tbody>
+              </table>
+            ) : (
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border text-left text-xs font-semibold text-muted-foreground">
+                    <th className="px-4 py-3 font-medium" />
+                    <th className="px-4 py-3 font-medium">Site ID</th>
+                    <th className="px-4 py-3 font-medium">Site Name</th>
+                    <th className="px-4 py-3 font-medium">Country</th>
+                    <th className="px-4 py-3 text-right font-medium">Target</th>
+                    <th className="px-4 py-3 text-right font-medium">Actual</th>
+                    <th className="px-4 py-3 text-right font-medium">% Enrolled</th>
+                    <th className="px-4 py-3 text-center font-medium">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(detail.sites ?? []).map((s) => {
+                    const stat =
+                      s.status === "SCREENING" ? "bg-info-bg text-info-foreground"
+                      : s.status === "ON HOLD" ? "bg-warning-bg text-warning-foreground"
+                      : s.status === "CLOSED" ? "bg-muted text-muted-foreground"
+                      : "bg-success-bg text-success-foreground";
+                    return (
+                      <tr key={s.id + s.name} className="border-b border-border/60 last:border-0 hover:bg-muted/40">
+                        <td className="px-4 py-3 text-muted-foreground"><ChevronRight className="h-4 w-4" /></td>
+                        <td className="px-4 py-3">
+                          <span className="rounded bg-accent px-2 py-0.5 font-mono text-xs font-semibold text-accent-foreground">{s.id}</span>
+                        </td>
+                        <td className="px-4 py-3 font-medium text-foreground">{s.name}</td>
+                        <td className="px-4 py-3 text-foreground">{s.country}</td>
+                        <td className="px-4 py-3 text-right tabular-nums text-foreground">{s.target}</td>
+                        <td className="px-4 py-3 text-right tabular-nums text-foreground">{s.actual}</td>
+                        <td className="px-4 py-3 text-right tabular-nums text-foreground">{s.pct.toFixed(1)}%</td>
+                        <td className="px-4 py-3 text-center">
+                          <span className={cn("inline-flex rounded px-2 py-0.5 text-[11px] font-semibold tracking-wide", stat)}>
+                            {s.status}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                  {(!detail.sites || detail.sites.length === 0) && (
+                    <tr><td colSpan={8} className="px-4 py-8 text-center text-muted-foreground">No site data available.</td></tr>
+                  )}
+                </tbody>
+              </table>
+            )}
           </div>
         </div>
       </section>
@@ -420,6 +532,59 @@ function ChartCard({ title, subtitle, children }: { title: string; subtitle?: st
         {title} {subtitle && <span className="ml-1 normal-case tracking-normal text-muted-foreground/70">{subtitle}</span>}
       </h3>
       <div className="mt-3">{children}</div>
+    </div>
+  );
+}
+
+function PerfPopover({
+  tone, label, title, groups,
+}: { tone: "up" | "down"; label: string; title: string; groups?: PerfGroups }) {
+  const tonePill = tone === "down"
+    ? "border-danger/30 bg-danger-bg/50 text-danger-foreground hover:bg-danger-bg"
+    : "border-success/30 bg-success-bg/50 text-success-foreground hover:bg-success-bg";
+  const Icon = tone === "down" ? TrendingDown : TrendingUp;
+  const valueColor = tone === "down" ? "text-danger-foreground" : "text-success-foreground";
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button className={cn("inline-flex items-center gap-1 rounded-md border px-2.5 py-1 text-xs font-medium transition-colors", tonePill)}>
+          <Icon className="h-3.5 w-3.5" /> {label}
+        </button>
+      </PopoverTrigger>
+      <PopoverContent align="end" className="w-80 p-0">
+        <div className={cn("flex items-center gap-1.5 border-b px-4 py-2.5 text-xs font-semibold uppercase tracking-wider", valueColor)}>
+          <Icon className="h-3.5 w-3.5" /> {title}
+        </div>
+        <div className="space-y-4 p-4">
+          {groups ? (
+            <>
+              <PerfList heading="Largest Absolute Shortfall" rows={groups.shortfall} valueColor={valueColor} />
+              <PerfList heading="Highest % Below Target" rows={groups.pctBelow} valueColor={valueColor} />
+            </>
+          ) : (
+            <p className="text-xs text-muted-foreground">No data available.</p>
+          )}
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+function PerfList({ heading, rows, valueColor }: { heading: string; rows: PerfItem[]; valueColor: string }) {
+  return (
+    <div>
+      <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{heading}</p>
+      <ul className="mt-2 space-y-1.5">
+        {rows.map((r) => (
+          <li key={r.rank} className="flex items-center justify-between text-sm">
+            <span className="flex items-center gap-2 text-foreground">
+              <span className="text-muted-foreground">{r.rank}</span>
+              {r.name}
+            </span>
+            <span className={cn("font-semibold tabular-nums", valueColor)}>{r.value}</span>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
