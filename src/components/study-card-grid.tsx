@@ -108,7 +108,7 @@ export function StudyCardGrid({ studies }: { studies: Study[] }) {
                 <p className="mt-0.5 font-medium text-foreground">{s.portfolio}</p>
               </div>
             </div>
-          </div>
+          </Link>
         );
       })}
     </div>
