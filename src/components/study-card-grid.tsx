@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import type { Study } from "@/lib/data";
 import { PriorityBadge, PerformanceBadge } from "./badges";
 import { Sparkline } from "./sparkline";
