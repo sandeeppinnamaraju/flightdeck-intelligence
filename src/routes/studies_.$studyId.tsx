@@ -9,7 +9,7 @@ import { studies } from "@/lib/data";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
-export const Route = createFileRoute("/studies/$studyId")({
+export const Route = createFileRoute("/studies_/$studyId")({
   head: ({ params }) => ({
     meta: [
       { title: `${params.studyId} — Study Overview — Flight Deck` },
