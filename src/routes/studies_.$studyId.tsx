@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { ArrowLeft, Calendar, TrendingDown, TrendingUp, ChevronRight } from "lucide-react";
+import { ArrowLeft, Calendar, TrendingDown, TrendingUp, ChevronRight, ChevronDown } from "lucide-react";
 import {
   LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer,
   BarChart, Bar, CartesianGrid, Legend,
