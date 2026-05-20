@@ -2,7 +2,6 @@ import { Link, useLocation } from "@tanstack/react-router";
 
 const tabs = [
   { to: "/", label: "Study Portfolio" },
-  { to: "/studies", label: "Study Overview" },
   { to: "/protocol-search", label: "Protocol Search" },
 ] as const;
 
