@@ -7,6 +7,7 @@ import {
 } from "recharts";
 import { studies } from "@/lib/data";
 import { cn } from "@/lib/utils";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 export const Route = createFileRoute("/studies/$studyId")({
   head: ({ params }) => ({
