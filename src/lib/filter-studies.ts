@@ -1,20 +1,27 @@
 import type { Study } from "./data";
 import type { FilterState } from "@/components/portfolio-filters";
 
-export function filterStudies(studies: Study[], f: FilterState): Study[] {
+type Key = keyof FilterState;
+
+export function filterStudies(
+  studies: Study[],
+  f: FilterState,
+  except?: Key,
+): Study[] {
   const q = f.search.trim().toLowerCase();
+  const use = (k: Key) => k !== except;
   return studies.filter((s) => {
-    if (q && !(
+    if (use("search") && q && !(
       s.id.toLowerCase().includes(q) ||
       s.title.toLowerCase().includes(q) ||
       s.indication.toLowerCase().includes(q)
     )) return false;
-    if (f.areas.length > 0 && !f.areas.includes(s.therapeuticArea)) return false;
-    if (f.phase && s.phase !== f.phase) return false;
-    if (f.status && s.status !== f.status) return false;
-    if (f.portfolio && s.portfolio !== f.portfolio) return false;
-    if (f.program && s.program !== f.program) return false;
-    // region & dateRange: no data field — treat as no-op for now
+    if (use("areas") && f.areas.length > 0 && !f.areas.includes(s.therapeuticArea)) return false;
+    if (use("phase") && f.phase && s.phase !== f.phase) return false;
+    if (use("status") && f.status && s.status !== f.status) return false;
+    if (use("portfolio") && f.portfolio && s.portfolio !== f.portfolio) return false;
+    if (use("program") && f.program && s.program !== f.program) return false;
+    // region & dateRange: no underlying data — no-op
     return true;
   });
 }

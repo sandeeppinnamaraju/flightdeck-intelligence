@@ -27,6 +27,7 @@ function StudiesPage() {
       </p>
       <div className="mt-5">
         <PortfolioFilters
+          studies={studies}
           total={studies.length}
           shown={filtered.length}
           filters={filters}

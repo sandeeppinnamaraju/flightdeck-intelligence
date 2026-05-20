@@ -1,22 +1,30 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Search, Calendar, ChevronDown, Check, X } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { therapeuticAreas } from "@/lib/data";
+import type { Study } from "@/lib/data";
+import { filterStudies } from "@/lib/filter-studies";
 import { cn } from "@/lib/utils";
 
-const phases = ["Ph I", "Ph II", "Ph III", "Ph IV"];
-const statuses = ["Recruiting", "Planned", "Follow-up"];
-const portfolios = [
-  "Oncology Portfolio",
-  "Cardiovascular Portfolio",
-  "Neurology Portfolio",
-  "Immunology Portfolio",
-  "Respiratory Portfolio",
-];
-const programs = ["ZPH-505", "OMP-770", "GEN-330", "PHX-873", "NXG-810", "CRX-255", "VRD-698"];
-const regions = ["North America", "EU", "APAC", "LATAM", "MEA"];
 const dateOptions = ["Last 30 days", "Last 90 days", "YTD", "Last 12 months", "All time"];
+const regions = ["North America", "EU", "APAC", "LATAM", "MEA"];
+const phaseOrder = ["Ph I", "Ph II", "Ph III", "Ph IV"];
+
+function uniqSorted<T>(arr: T[], order?: T[]): T[] {
+  const s = Array.from(new Set(arr));
+  if (order) {
+    return s.sort((a, b) => {
+      const ai = order.indexOf(a);
+      const bi = order.indexOf(b);
+      if (ai === -1 && bi === -1) return String(a).localeCompare(String(b));
+      if (ai === -1) return 1;
+      if (bi === -1) return -1;
+      return ai - bi;
+    });
+  }
+  return s.sort((a, b) => String(a).localeCompare(String(b)));
+}
+
 
 export interface FilterState {
   search: string;
@@ -78,9 +86,11 @@ function SingleSelect({
 }
 
 function MultiSelectTA({
+  options,
   selected,
   onChange,
 }: {
+  options: string[];
   selected: string[];
   onChange: (v: string[]) => void;
 }) {
@@ -116,7 +126,7 @@ function MultiSelectTA({
           )}
         </div>
         <div className="max-h-64 overflow-y-auto">
-          {therapeuticAreas.map((a) => {
+          {options.map((a: string) => {
             const isSel = selected.includes(a);
             return (
               <button
@@ -143,11 +153,13 @@ function MultiSelectTA({
 }
 
 export function PortfolioFilters({
+  studies,
   total,
   shown,
   filters,
   onChange,
 }: {
+  studies: Study[];
   total: number;
   shown: number;
   filters: FilterState;
@@ -155,6 +167,20 @@ export function PortfolioFilters({
 }) {
   const set = <K extends keyof FilterState>(key: K, value: FilterState[K]) =>
     onChange({ ...filters, [key]: value });
+
+  const available = useMemo(() => {
+    const opts = (key: keyof FilterState, pick: (s: Study) => string, order?: string[]) =>
+      uniqSorted(filterStudies(studies, filters, key).map(pick), order);
+    return {
+      areas: opts("areas", (s) => s.therapeuticArea),
+      phases: opts("phase", (s) => s.phase, phaseOrder),
+      statuses: opts("status", (s) => s.status),
+      portfolios: opts("portfolio", (s) => s.portfolio),
+      programs: opts("program", (s) => s.program),
+    };
+  }, [studies, filters]);
+
+
 
   const hasAny =
     filters.areas.length > 0 ||
@@ -185,16 +211,16 @@ export function PortfolioFilters({
         </p>
       </div>
       <div className="flex flex-wrap items-center gap-2">
-        <MultiSelectTA selected={filters.areas} onChange={(v) => set("areas", v)} />
-        <SingleSelect label="Phase" options={phases} value={filters.phase} onChange={(v) => set("phase", v)} />
-        <SingleSelect label="Study Status" options={statuses} value={filters.status} onChange={(v) => set("status", v)} />
+        <MultiSelectTA options={available.areas} selected={filters.areas} onChange={(v) => set("areas", v)} />
+        <SingleSelect label="Phase" options={available.phases} value={filters.phase} onChange={(v) => set("phase", v)} />
+        <SingleSelect label="Study Status" options={available.statuses} value={filters.status} onChange={(v) => set("status", v)} />
         <SingleSelect
           label="Portfolio"
-          options={portfolios}
+          options={available.portfolios}
           value={filters.portfolio}
           onChange={(v) => set("portfolio", v)}
         />
-        <SingleSelect label="Program" options={programs} value={filters.program} onChange={(v) => set("program", v)} />
+        <SingleSelect label="Program" options={available.programs} value={filters.program} onChange={(v) => set("program", v)} />
         <SingleSelect label="Region" options={regions} value={filters.region} onChange={(v) => set("region", v)} />
         <Select
           value={filters.dateRange ?? ""}
