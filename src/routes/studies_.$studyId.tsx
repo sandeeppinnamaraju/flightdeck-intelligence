@@ -563,9 +563,16 @@ function StudyOverviewPage() {
                       : s.status === "ON HOLD" ? "bg-warning-bg text-warning-foreground"
                       : s.status === "CLOSED" ? "bg-muted text-muted-foreground"
                       : "bg-success-bg text-success-foreground";
+                    const key = `s-${s.id}-${s.name}`;
                     return (
-                      <tr key={s.id + s.name} className="border-b border-border/60 last:border-0 hover:bg-muted/40">
-                        <td className="px-4 py-3 text-muted-foreground"><ChevronRight className="h-4 w-4" /></td>
+                      <React.Fragment key={key}>
+                      <tr
+                        onClick={() => toggle(key)}
+                        className="cursor-pointer border-b border-border/60 last:border-0 hover:bg-muted/40"
+                      >
+                        <td className="px-4 py-3 text-muted-foreground">
+                          {expanded[key] ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                        </td>
                         <td className="px-4 py-3">
                           <span className="rounded bg-accent px-2 py-0.5 font-mono text-xs font-semibold text-accent-foreground">{s.id}</span>
                         </td>
@@ -580,6 +587,15 @@ function StudyOverviewPage() {
                           </span>
                         </td>
                       </tr>
+                      {expanded[key] && (
+                        <tr className="bg-muted/30">
+                          <td />
+                          <td colSpan={7} className="px-4 py-3">
+                            <SiteDrilldown site={s} />
+                          </td>
+                        </tr>
+                      )}
+                      </React.Fragment>
                     );
                   })}
                   {(!detail.sites || detail.sites.length === 0) && (
