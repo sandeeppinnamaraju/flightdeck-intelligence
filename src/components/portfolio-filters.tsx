@@ -18,6 +18,28 @@ const programs = ["ZPH-505", "OMP-770", "GEN-330", "PHX-873", "NXG-810", "CRX-25
 const regions = ["North America", "EU", "APAC", "LATAM", "MEA"];
 const dateOptions = ["Last 30 days", "Last 90 days", "YTD", "Last 12 months", "All time"];
 
+export interface FilterState {
+  search: string;
+  areas: string[];
+  phase: string | null;
+  status: string | null;
+  portfolio: string | null;
+  program: string | null;
+  region: string | null;
+  dateRange: string | null;
+}
+
+export const emptyFilters: FilterState = {
+  search: "",
+  areas: [],
+  phase: null,
+  status: null,
+  portfolio: null,
+  program: null,
+  region: null,
+  dateRange: null,
+};
+
 function SingleSelect({
   label,
   options,
@@ -120,17 +142,29 @@ function MultiSelectTA({
   );
 }
 
-export function PortfolioFilters({ total }: { total: number }) {
-  const [areas, setAreas] = useState<string[]>([]);
-  const [phase, setPhase] = useState<string | null>(null);
-  const [status, setStatus] = useState<string | null>(null);
-  const [portfolio, setPortfolio] = useState<string | null>(null);
-  const [program, setProgram] = useState<string | null>(null);
-  const [region, setRegion] = useState<string | null>(null);
-  const [dateRange, setDateRange] = useState<string | null>(null);
+export function PortfolioFilters({
+  total,
+  shown,
+  filters,
+  onChange,
+}: {
+  total: number;
+  shown: number;
+  filters: FilterState;
+  onChange: (f: FilterState) => void;
+}) {
+  const set = <K extends keyof FilterState>(key: K, value: FilterState[K]) =>
+    onChange({ ...filters, [key]: value });
 
   const hasAny =
-    areas.length > 0 || phase || status || portfolio || program || region || dateRange;
+    filters.areas.length > 0 ||
+    filters.phase ||
+    filters.status ||
+    filters.portfolio ||
+    filters.program ||
+    filters.region ||
+    filters.dateRange ||
+    filters.search.length > 0;
 
   return (
     <div className="space-y-3">
@@ -139,38 +173,40 @@ export function PortfolioFilters({ total }: { total: number }) {
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <input
             type="text"
+            value={filters.search}
+            onChange={(e) => set("search", e.target.value)}
             placeholder="Search by ID, title, indication..."
             className="h-10 w-full rounded-lg border border-input bg-card pl-9 pr-3 text-sm placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/20"
           />
         </div>
         <p className="text-sm text-muted-foreground">
-          Showing <span className="font-semibold text-foreground">1–25</span> of{" "}
+          Showing <span className="font-semibold text-foreground">{shown}</span> of{" "}
           <span className="font-semibold text-foreground">{total}</span> studies
         </p>
       </div>
       <div className="flex flex-wrap items-center gap-2">
-        <MultiSelectTA selected={areas} onChange={setAreas} />
-        <SingleSelect label="Phase" options={phases} value={phase} onChange={setPhase} />
-        <SingleSelect label="Study Status" options={statuses} value={status} onChange={setStatus} />
+        <MultiSelectTA selected={filters.areas} onChange={(v) => set("areas", v)} />
+        <SingleSelect label="Phase" options={phases} value={filters.phase} onChange={(v) => set("phase", v)} />
+        <SingleSelect label="Study Status" options={statuses} value={filters.status} onChange={(v) => set("status", v)} />
         <SingleSelect
           label="Portfolio"
           options={portfolios}
-          value={portfolio}
-          onChange={setPortfolio}
+          value={filters.portfolio}
+          onChange={(v) => set("portfolio", v)}
         />
-        <SingleSelect label="Program" options={programs} value={program} onChange={setProgram} />
-        <SingleSelect label="Region" options={regions} value={region} onChange={setRegion} />
+        <SingleSelect label="Program" options={programs} value={filters.program} onChange={(v) => set("program", v)} />
+        <SingleSelect label="Region" options={regions} value={filters.region} onChange={(v) => set("region", v)} />
         <Select
-          value={dateRange ?? ""}
-          onValueChange={(v) => setDateRange(v === "__all__" ? null : v)}
+          value={filters.dateRange ?? ""}
+          onValueChange={(v) => set("dateRange", v === "__all__" ? null : v)}
         >
           <SelectTrigger className="h-9 w-auto gap-1.5 rounded-lg border border-input bg-card px-3 text-sm">
             <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
             <SelectValue placeholder="FPI / LPO">
-              {dateRange ? (
+              {filters.dateRange ? (
                 <span>
                   <span className="text-muted-foreground">FPI / LPO:</span>{" "}
-                  <span className="font-medium">{dateRange}</span>
+                  <span className="font-medium">{filters.dateRange}</span>
                 </span>
               ) : (
                 "FPI / LPO"
@@ -188,15 +224,7 @@ export function PortfolioFilters({ total }: { total: number }) {
         </Select>
         {hasAny && (
           <button
-            onClick={() => {
-              setAreas([]);
-              setPhase(null);
-              setStatus(null);
-              setPortfolio(null);
-              setProgram(null);
-              setRegion(null);
-              setDateRange(null);
-            }}
+            onClick={() => onChange(emptyFilters)}
             className="inline-flex h-9 items-center gap-1 rounded-lg px-2 text-sm text-muted-foreground hover:text-foreground"
           >
             <X className="h-3.5 w-3.5" />
@@ -204,16 +232,16 @@ export function PortfolioFilters({ total }: { total: number }) {
           </button>
         )}
       </div>
-      {areas.length > 0 && (
+      {filters.areas.length > 0 && (
         <div className="flex flex-wrap items-center gap-1.5">
-          {areas.map((a) => (
+          {filters.areas.map((a) => (
             <span
               key={a}
               className="inline-flex items-center gap-1 rounded-full border border-input bg-card px-2 py-0.5 text-xs text-foreground"
             >
               {a}
               <button
-                onClick={() => setAreas(areas.filter((x) => x !== a))}
+                onClick={() => set("areas", filters.areas.filter((x) => x !== a))}
                 className="text-muted-foreground hover:text-foreground"
               >
                 <X className="h-3 w-3" />
