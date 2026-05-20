@@ -12,7 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as StudiesRouteImport } from './routes/studies'
 import { Route as ProtocolSearchRouteImport } from './routes/protocol-search'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as StudiesStudyIdRouteImport } from './routes/studies.$studyId'
+import { Route as StudiesStudyIdRouteImport } from './routes/studies_.$studyId'
 
 const StudiesRoute = StudiesRouteImport.update({
   id: '/studies',
@@ -30,42 +30,43 @@ const IndexRoute = IndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const StudiesStudyIdRoute = StudiesStudyIdRouteImport.update({
-  id: '/$studyId',
-  path: '/$studyId',
-  getParentRoute: () => StudiesRoute,
+  id: '/studies_/$studyId',
+  path: '/studies/$studyId',
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/protocol-search': typeof ProtocolSearchRoute
-  '/studies': typeof StudiesRouteWithChildren
+  '/studies': typeof StudiesRoute
   '/studies/$studyId': typeof StudiesStudyIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/protocol-search': typeof ProtocolSearchRoute
-  '/studies': typeof StudiesRouteWithChildren
+  '/studies': typeof StudiesRoute
   '/studies/$studyId': typeof StudiesStudyIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/protocol-search': typeof ProtocolSearchRoute
-  '/studies': typeof StudiesRouteWithChildren
-  '/studies/$studyId': typeof StudiesStudyIdRoute
+  '/studies': typeof StudiesRoute
+  '/studies_/$studyId': typeof StudiesStudyIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths: '/' | '/protocol-search' | '/studies' | '/studies/$studyId'
   fileRoutesByTo: FileRoutesByTo
   to: '/' | '/protocol-search' | '/studies' | '/studies/$studyId'
-  id: '__root__' | '/' | '/protocol-search' | '/studies' | '/studies/$studyId'
+  id: '__root__' | '/' | '/protocol-search' | '/studies' | '/studies_/$studyId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ProtocolSearchRoute: typeof ProtocolSearchRoute
-  StudiesRoute: typeof StudiesRouteWithChildren
+  StudiesRoute: typeof StudiesRoute
+  StudiesStudyIdRoute: typeof StudiesStudyIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -91,32 +92,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/studies/$studyId': {
-      id: '/studies/$studyId'
-      path: '/$studyId'
+    '/studies_/$studyId': {
+      id: '/studies_/$studyId'
+      path: '/studies/$studyId'
       fullPath: '/studies/$studyId'
       preLoaderRoute: typeof StudiesStudyIdRouteImport
-      parentRoute: typeof StudiesRoute
+      parentRoute: typeof rootRouteImport
     }
   }
 }
 
-interface StudiesRouteChildren {
-  StudiesStudyIdRoute: typeof StudiesStudyIdRoute
-}
-
-const StudiesRouteChildren: StudiesRouteChildren = {
-  StudiesStudyIdRoute: StudiesStudyIdRoute,
-}
-
-const StudiesRouteWithChildren =
-  StudiesRoute._addFileChildren(StudiesRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ProtocolSearchRoute: ProtocolSearchRoute,
-  StudiesRoute: StudiesRouteWithChildren,
+  StudiesRoute: StudiesRoute,
+  StudiesStudyIdRoute: StudiesStudyIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
