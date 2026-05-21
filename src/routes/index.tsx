@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { LayoutGrid, Search, ArrowRight, Sparkles, Activity, Globe2, ShieldCheck } from "lucide-react";
+import { LayoutGrid, Search, ArrowRight, Sparkles } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
