@@ -54,7 +54,7 @@ function PortfolioPage() {
           accent="info"
           spark={[2, 4, 5, 8, 11, 14]}
         />
-        <KpiCard label="Schedule Adherence" value="90.1%" sub="12,416 of 13,782 planned" accent="violet" />
+        <KpiCard label="Enrollment vs Plan (To Date)" value="90.1%" sub="12,416 of 13,782 planned" accent="violet" />
         <KpiCard label="Velocity vs Plan" value="62.5%" sub="avg enrollment speed" accent="teal" />
       </div>
 
