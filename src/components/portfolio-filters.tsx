@@ -199,7 +199,7 @@ export function PortfolioFilters({
     filters.portfolio ||
     filters.program ||
     filters.region ||
-    filters.dateRange ||
+    filters.fpiFrom || filters.fpiTo || filters.lpoFrom || filters.lpoTo ||
     filters.search.length > 0;
 
   return (
