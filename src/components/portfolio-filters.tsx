@@ -179,9 +179,9 @@ const FPI_PRESETS: { label: string; range: () => [string, string] }[] = [
 ];
 
 const LPO_PRESETS: { label: string; range: () => [string, string] }[] = [
-  { label: "Next 3 mo", range: () => [fmt(TODAY), fmt(addMonths(TODAY, 3))] },
-  { label: "Next 6 mo", range: () => [fmt(TODAY), fmt(addMonths(TODAY, 6))] },
-  { label: "Next 12 mo", range: () => [fmt(TODAY), fmt(addMonths(TODAY, 12))] },
+  { label: "Next 6 Months", range: () => [fmt(TODAY), fmt(addMonths(TODAY, 6))] },
+  { label: "Next 12 Months", range: () => [fmt(TODAY), fmt(addMonths(TODAY, 12))] },
+  { label: "Year to Date", range: () => [fmt(TODAY), fmt(new Date(TODAY.getFullYear(), 11, 31))] },
 ];
 
 function presetActive(from: string | null, to: string | null, preset: [string, string]): boolean {
