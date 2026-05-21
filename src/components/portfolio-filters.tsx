@@ -7,7 +7,6 @@ import { filterStudies } from "@/lib/filter-studies";
 import { getStudyRegions, REGIONS } from "@/lib/study-derived";
 import { cn } from "@/lib/utils";
 
-const dateOptions = ["Last 30 days", "Last 90 days", "YTD", "Last 12 months", "All time"];
 const phaseOrder = ["Ph I", "Ph II", "Ph III", "Ph IV"];
 
 function uniqSorted<T>(arr: T[], order?: T[]): T[] {
