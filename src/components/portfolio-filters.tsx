@@ -157,6 +157,166 @@ function MultiSelectTA({
   );
 }
 
+const TODAY = new Date(2026, 4, 20);
+
+function fmt(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+function addMonths(d: Date, n: number): Date {
+  const r = new Date(d);
+  r.setMonth(r.getMonth() + n);
+  return r;
+}
+
+const FPI_PRESETS: { label: string; range: () => [string, string] }[] = [
+  { label: "This Year", range: () => [fmt(new Date(TODAY.getFullYear(), 0, 1)), fmt(new Date(TODAY.getFullYear(), 11, 31))] },
+  { label: "Year to Date", range: () => [fmt(new Date(TODAY.getFullYear(), 0, 1)), fmt(TODAY)] },
+  { label: "Last 12 mo", range: () => [fmt(addMonths(TODAY, -12)), fmt(TODAY)] },
+];
+
+const LPO_PRESETS: { label: string; range: () => [string, string] }[] = [
+  { label: "Next 3 mo", range: () => [fmt(TODAY), fmt(addMonths(TODAY, 3))] },
+  { label: "Next 6 mo", range: () => [fmt(TODAY), fmt(addMonths(TODAY, 6))] },
+  { label: "Next 12 mo", range: () => [fmt(TODAY), fmt(addMonths(TODAY, 12))] },
+];
+
+function presetActive(from: string | null, to: string | null, preset: [string, string]): boolean {
+  return from === preset[0] && to === preset[1];
+}
+
+function DateSection({
+  title,
+  presets,
+  from,
+  to,
+  onChange,
+}: {
+  title: string;
+  presets: { label: string; range: () => [string, string] }[];
+  from: string | null;
+  to: string | null;
+  onChange: (from: string | null, to: string | null) => void;
+}) {
+  return (
+    <div className="space-y-2">
+      <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{title}</p>
+      <div className="flex flex-wrap gap-1.5">
+        {presets.map((p) => {
+          const range = p.range();
+          const active = presetActive(from, to, range);
+          return (
+            <button
+              key={p.label}
+              onClick={() => onChange(active ? null : range[0], active ? null : range[1])}
+              className={cn(
+                "rounded-full border px-2.5 py-0.5 text-xs transition",
+                active
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : "border-input bg-card text-foreground hover:bg-muted",
+              )}
+            >
+              {p.label}
+            </button>
+          );
+        })}
+      </div>
+      <div className="grid grid-cols-2 gap-2 pt-1">
+        <label className="space-y-1">
+          <span className="block text-[11px] text-muted-foreground">From</span>
+          <input
+            type="date"
+            value={from ?? ""}
+            onChange={(e) => onChange(e.target.value || null, to)}
+            className="h-8 w-full rounded-md border border-input bg-card px-2 text-xs focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/20"
+          />
+        </label>
+        <label className="space-y-1">
+          <span className="block text-[11px] text-muted-foreground">To</span>
+          <input
+            type="date"
+            value={to ?? ""}
+            onChange={(e) => onChange(from, e.target.value || null)}
+            className="h-8 w-full rounded-md border border-input bg-card px-2 text-xs focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/20"
+          />
+        </label>
+      </div>
+    </div>
+  );
+}
+
+function FpiLpoFilter({
+  filters,
+  onChange,
+}: {
+  filters: FilterState;
+  onChange: (f: FilterState) => void;
+}) {
+  const active =
+    !!(filters.fpiFrom || filters.fpiTo || filters.lpoFrom || filters.lpoTo);
+  const count =
+    (filters.fpiFrom || filters.fpiTo ? 1 : 0) +
+    (filters.lpoFrom || filters.lpoTo ? 1 : 0);
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button
+          className={cn(
+            "inline-flex h-9 items-center gap-1.5 rounded-lg border border-input bg-card px-3 text-sm",
+            active && "border-primary/40",
+          )}
+        >
+          <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+          <span className={active ? "font-medium" : "text-foreground"}>FPI / LPO</span>
+          {count > 0 && (
+            <span className="rounded-full bg-primary px-1.5 py-0.5 text-[11px] font-semibold text-primary-foreground">
+              {count}
+            </span>
+          )}
+          <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent align="end" className="w-80 space-y-4 p-4">
+        <div className="flex items-center justify-between">
+          <p className="text-sm font-semibold text-foreground">Date Filters</p>
+          {active && (
+            <button
+              onClick={() =>
+                onChange({ ...filters, fpiFrom: null, fpiTo: null, lpoFrom: null, lpoTo: null })
+              }
+              className="text-xs font-medium text-primary hover:underline"
+            >
+              Clear
+            </button>
+          )}
+        </div>
+        <DateSection
+          title="First Patient In (FPI)"
+          presets={FPI_PRESETS}
+          from={filters.fpiFrom}
+          to={filters.fpiTo}
+          onChange={(from, to) => onChange({ ...filters, fpiFrom: from, fpiTo: to })}
+        />
+        <DateSection
+          title="Last Patient Out (LPO)"
+          presets={LPO_PRESETS}
+          from={filters.lpoFrom}
+          to={filters.lpoTo}
+          onChange={(from, to) => onChange({ ...filters, lpoFrom: from, lpoTo: to })}
+        />
+        <p className="text-[11px] text-muted-foreground">
+          Leave either end blank to apply an open-ended filter.
+        </p>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+
 export function PortfolioFilters({
   studies,
   total,
