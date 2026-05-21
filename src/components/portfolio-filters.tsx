@@ -232,32 +232,7 @@ export function PortfolioFilters({
         />
         <SingleSelect label="Program" options={available.programs} value={filters.program} onChange={(v) => set("program", v)} />
         <SingleSelect label="Region" options={available.regions} value={filters.region} onChange={(v) => set("region", v)} />
-        <Select
-          value={filters.dateRange ?? ""}
-          onValueChange={(v) => set("dateRange", v === "__all__" ? null : v)}
-        >
-          <SelectTrigger className="h-9 w-auto gap-1.5 rounded-lg border border-input bg-card px-3 text-sm">
-            <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-            <SelectValue placeholder="FPI / LPO">
-              {filters.dateRange ? (
-                <span>
-                  <span className="text-muted-foreground">FPI / LPO:</span>{" "}
-                  <span className="font-medium">{filters.dateRange}</span>
-                </span>
-              ) : (
-                "FPI / LPO"
-              )}
-            </SelectValue>
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="__all__">All time</SelectItem>
-            {dateOptions.map((o) => (
-              <SelectItem key={o} value={o}>
-                {o}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <FpiLpoFilter filters={filters} onChange={onChange} />
         {hasAny && (
           <button
             onClick={() => onChange(emptyFilters)}
