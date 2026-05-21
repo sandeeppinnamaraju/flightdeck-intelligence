@@ -33,7 +33,10 @@ export interface FilterState {
   portfolio: string | null;
   program: string | null;
   region: string | null;
-  dateRange: string | null;
+  fpiFrom: string | null;
+  fpiTo: string | null;
+  lpoFrom: string | null;
+  lpoTo: string | null;
 }
 
 export const emptyFilters: FilterState = {
@@ -44,7 +47,10 @@ export const emptyFilters: FilterState = {
   portfolio: null,
   program: null,
   region: null,
-  dateRange: null,
+  fpiFrom: null,
+  fpiTo: null,
+  lpoFrom: null,
+  lpoTo: null,
 };
 
 function SingleSelect({
