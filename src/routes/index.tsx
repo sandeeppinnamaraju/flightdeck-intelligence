@@ -117,18 +117,6 @@ function HomePage() {
                 ))}
               </div>
 
-              <div className="mt-6 grid grid-cols-3 gap-3 border-t border-border pt-5">
-                {[
-                  { icon: Activity, label: "FPI signals" },
-                  { icon: Globe2, label: "Global reach" },
-                  { icon: ShieldCheck, label: "Risk guard" },
-                ].map(({ icon: Icon, label }) => (
-                  <div key={label} className="flex flex-col items-center gap-1.5 rounded-lg bg-muted/50 p-3 text-center">
-                    <Icon className="h-4 w-4 text-primary" />
-                    <span className="text-[11px] font-medium text-muted-foreground">{label}</span>
-                  </div>
-                ))}
-              </div>
             </div>
 
             {/* Floating accent */}
