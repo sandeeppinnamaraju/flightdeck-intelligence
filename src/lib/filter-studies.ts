@@ -1,8 +1,21 @@
 import type { Study } from "./data";
 import type { FilterState } from "@/components/portfolio-filters";
-import { getStudyRegions, studyMatchesDateRange } from "./study-derived";
+import { getStudyDates, getStudyRegions } from "./study-derived";
 
 type Key = keyof FilterState;
+
+function parse(d: string | null): Date | null {
+  if (!d) return null;
+  const t = new Date(d);
+  return isNaN(t.getTime()) ? null : t;
+}
+
+function inRange(d: Date | null, from: Date | null, to: Date | null): boolean {
+  if (!d) return false;
+  if (from && d < from) return false;
+  if (to && d > to) return false;
+  return true;
+}
 
 export function filterStudies(
   studies: Study[],
@@ -11,6 +24,13 @@ export function filterStudies(
 ): Study[] {
   const q = f.search.trim().toLowerCase();
   const use = (k: Key) => k !== except;
+  const fpiFrom = parse(f.fpiFrom);
+  const fpiTo = parse(f.fpiTo);
+  const lpoFrom = parse(f.lpoFrom);
+  const lpoTo = parse(f.lpoTo);
+  const hasFpi = use("fpiFrom") && use("fpiTo") && (fpiFrom || fpiTo);
+  const hasLpo = use("lpoFrom") && use("lpoTo") && (lpoFrom || lpoTo);
+
   return studies.filter((s) => {
     if (use("search") && q && !(
       s.id.toLowerCase().includes(q) ||
@@ -23,7 +43,17 @@ export function filterStudies(
     if (use("portfolio") && f.portfolio && s.portfolio !== f.portfolio) return false;
     if (use("program") && f.program && s.program !== f.program) return false;
     if (use("region") && f.region && !getStudyRegions(s).includes(f.region as never)) return false;
-    if (use("dateRange") && f.dateRange && !studyMatchesDateRange(s, f.dateRange)) return false;
+    if (hasFpi || hasLpo) {
+      const d = getStudyDates(s);
+      if (hasFpi) {
+        const fpi = d.actualFPI ?? d.plannedFPI;
+        if (!inRange(fpi, fpiFrom, fpiTo)) return false;
+      }
+      if (hasLpo) {
+        const lpo = d.forecastLPO ?? d.plannedLPO;
+        if (!inRange(lpo, lpoFrom, lpoTo)) return false;
+      }
+    }
     return true;
   });
 }
