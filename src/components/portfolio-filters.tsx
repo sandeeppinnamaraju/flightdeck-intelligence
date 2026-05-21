@@ -173,9 +173,9 @@ function addMonths(d: Date, n: number): Date {
 }
 
 const FPI_PRESETS: { label: string; range: () => [string, string] }[] = [
-  { label: "This Year", range: () => [fmt(new Date(TODAY.getFullYear(), 0, 1)), fmt(new Date(TODAY.getFullYear(), 11, 31))] },
+  { label: "Last 6 Months", range: () => [fmt(addMonths(TODAY, -6)), fmt(TODAY)] },
+  { label: "Last 12 Months", range: () => [fmt(addMonths(TODAY, -12)), fmt(TODAY)] },
   { label: "Year to Date", range: () => [fmt(new Date(TODAY.getFullYear(), 0, 1)), fmt(TODAY)] },
-  { label: "Last 12 mo", range: () => [fmt(addMonths(TODAY, -12)), fmt(TODAY)] },
 ];
 
 const LPO_PRESETS: { label: string; range: () => [string, string] }[] = [
