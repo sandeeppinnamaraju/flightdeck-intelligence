@@ -102,6 +102,7 @@ function RootComponent() {
       <div className="min-h-screen bg-background">
         {!isLogin && <TopNav />}
         <Outlet />
+        <Toaster />
       </div>
     </QueryClientProvider>
   );
