@@ -344,7 +344,26 @@ function StudyOverviewPage() {
         </div>
       </section>
 
-      <section className="mt-5 grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-6">
+      <div className="mt-6 inline-flex rounded-lg bg-muted p-1">
+        {[
+          { id: "full", label: "Full Study" },
+          { id: "since", label: "Since FPI" },
+          { id: "last3", label: "Last 3 Months" },
+        ].map((p) => (
+          <button
+            key={p.id}
+            onClick={() => setRange(p.id as typeof range)}
+            className={cn(
+              "rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+              range === p.id ? "bg-card text-primary shadow-sm" : "text-muted-foreground hover:text-foreground",
+            )}
+          >
+            {p.label}
+          </button>
+        ))}
+      </div>
+
+      <section className="mt-3 grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-6">
         <KpiTile
           label="Enrollment vs Plan"
           value={`${detail.enrollmentVsPlan}%`}
@@ -380,24 +399,7 @@ function StudyOverviewPage() {
         />
       </section>
 
-      <div className="mt-6 inline-flex rounded-lg bg-muted p-1">
-        {[
-          { id: "full", label: "Full Study" },
-          { id: "since", label: "Since FPI" },
-          { id: "last3", label: "Last 3 Months" },
-        ].map((p) => (
-          <button
-            key={p.id}
-            onClick={() => setRange(p.id as typeof range)}
-            className={cn(
-              "rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
-              range === p.id ? "bg-card text-primary shadow-sm" : "text-muted-foreground hover:text-foreground",
-            )}
-          >
-            {p.label}
-          </button>
-        ))}
-      </div>
+
 
       <section className="mt-3 grid grid-cols-1 gap-4 lg:grid-cols-2">
         <ChartCard title="CUMULATIVE ENROLLMENT">
