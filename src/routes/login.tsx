@@ -117,10 +117,6 @@ function LoginPage() {
             </button>
           </form>
         </section>
-
-        <p className="mt-6 text-center text-xs text-muted-foreground">
-          MVP · Mock data only · No real authentication
-        </p>
       </div>
     </main>
   );
