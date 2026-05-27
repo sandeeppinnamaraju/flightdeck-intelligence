@@ -11,6 +11,7 @@ import {
 } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { TopNav } from "@/components/top-nav";
+import { Toaster } from "@/components/ui/sonner";
 import { getSession } from "@/lib/auth";
 
 import appCss from "../styles.css?url";
@@ -101,6 +102,7 @@ function RootComponent() {
       <div className="min-h-screen bg-background">
         {!isLogin && <TopNav />}
         <Outlet />
+        <Toaster />
       </div>
     </QueryClientProvider>
   );

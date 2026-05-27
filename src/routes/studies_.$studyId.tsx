@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { ArrowLeft, Calendar, TrendingDown, TrendingUp, ChevronRight, ChevronDown } from "lucide-react";
 import {
   LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer,
-  BarChart, Bar, CartesianGrid, Legend,
+  BarChart, Bar, Cell, CartesianGrid, Legend,
 } from "recharts";
 import { studies } from "@/lib/data";
 import { cn } from "@/lib/utils";
@@ -276,7 +276,20 @@ function StudyOverviewPage() {
   const [range, setRange] = useState<"full" | "since" | "last3">("full");
   const [view, setView] = useState<"country" | "site">("country");
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+  const [highlight, setHighlight] = useState<string | null>(null);
   const toggle = (k: string) => setExpanded((p) => ({ ...p, [k]: !p[k] }));
+
+  const focusRow = (kind: "country" | "site", id: string) => {
+    setView(kind);
+    const expKey = kind === "country" ? `c-${id}` : `s-${id}`;
+    const rowId = kind === "country" ? `country-row-${id}` : `site-row-${id}`;
+    setExpanded((p) => ({ ...p, [expKey]: true }));
+    setHighlight(rowId);
+    setTimeout(() => {
+      document.getElementById(rowId)?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 50);
+    setTimeout(() => setHighlight(null), 2200);
+  };
 
   if (!study) {
     return (
@@ -324,9 +337,7 @@ function StudyOverviewPage() {
               {study.indication} · {study.therapeuticArea} · {study.portfolio.replace(" Portfolio", "")} & Hematology
             </p>
           </div>
-          <button className="inline-flex items-center gap-1.5 rounded-md border border-input bg-card px-3 py-1.5 text-sm font-medium text-foreground hover:bg-muted">
-            <Calendar className="h-4 w-4" /> Milestones
-          </button>
+          <MilestonesPopover detail={detail} />
         </div>
 
         <div className="mt-6 grid grid-cols-2 gap-x-6 gap-y-5 md:grid-cols-5">
@@ -344,7 +355,26 @@ function StudyOverviewPage() {
         </div>
       </section>
 
-      <section className="mt-5 grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-6">
+      <div className="mt-6 inline-flex rounded-lg bg-muted p-1">
+        {[
+          { id: "full", label: "Full Study" },
+          { id: "since", label: "Since FPI" },
+          { id: "last3", label: "Last 3 Months" },
+        ].map((p) => (
+          <button
+            key={p.id}
+            onClick={() => setRange(p.id as typeof range)}
+            className={cn(
+              "rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+              range === p.id ? "bg-card text-primary shadow-sm" : "text-muted-foreground hover:text-foreground",
+            )}
+          >
+            {p.label}
+          </button>
+        ))}
+      </div>
+
+      <section className="mt-3 grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-6">
         <KpiTile
           label="Enrollment vs Plan"
           value={`${detail.enrollmentVsPlan}%`}
@@ -380,24 +410,7 @@ function StudyOverviewPage() {
         />
       </section>
 
-      <div className="mt-6 inline-flex rounded-lg bg-muted p-1">
-        {[
-          { id: "full", label: "Full Study" },
-          { id: "since", label: "Since FPI" },
-          { id: "last3", label: "Last 3 Months" },
-        ].map((p) => (
-          <button
-            key={p.id}
-            onClick={() => setRange(p.id as typeof range)}
-            className={cn(
-              "rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
-              range === p.id ? "bg-card text-primary shadow-sm" : "text-muted-foreground hover:text-foreground",
-            )}
-          >
-            {p.label}
-          </button>
-        ))}
-      </div>
+
 
       <section className="mt-3 grid grid-cols-1 gap-4 lg:grid-cols-2">
         <ChartCard title="CUMULATIVE ENROLLMENT">
@@ -409,8 +422,8 @@ function StudyOverviewPage() {
               <Tooltip />
               <Legend iconType="plainline" wrapperStyle={{ fontSize: 12 }} />
               <Line type="monotone" dataKey="actual" name="Actual" stroke="oklch(0.45 0.2 263)" strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="forecast" name="Forecast" stroke="oklch(0.55 0.14 170)" strokeWidth={2} strokeDasharray="5 4" dot={false} />
-              <Line type="monotone" dataKey="planned" name="Planned" stroke="oklch(0.7 0.08 200)" strokeWidth={2} strokeDasharray="2 3" dot={false} />
+              <Line type="monotone" dataKey="forecast" name="Forecast" stroke="oklch(0.62 0.17 35)" strokeWidth={2} strokeDasharray="6 4" dot={false} />
+              <Line type="monotone" dataKey="planned" name="Planned" stroke="oklch(0.55 0.12 160)" strokeWidth={2} strokeDasharray="2 3" dot={false} />
             </LineChart>
           </ResponsiveContainer>
         </ChartCard>
@@ -423,16 +436,30 @@ function StudyOverviewPage() {
               <YAxis tick={{ fontSize: 11, fill: "oklch(0.5 0.02 260)" }} />
               <Tooltip />
               <Legend wrapperStyle={{ fontSize: 12 }} />
-              <Bar dataKey="actual" name="Actual" fill="oklch(0.45 0.2 263)" radius={[2, 2, 0, 0]} />
-              <Bar dataKey="planned" name="Planned" fill="oklch(0.75 0.1 263)" radius={[2, 2, 0, 0]} />
+              <Bar dataKey="actual" name="Actual" radius={[2, 2, 0, 0]}>
+                {rates.map((r, i) => (
+                  <Cell
+                    key={i}
+                    fill={r.actual < r.planned ? "oklch(0.65 0.17 25)" : "oklch(0.45 0.2 263)"}
+                  />
+                ))}
+              </Bar>
+              <Bar dataKey="planned" name="Planned" fill="oklch(0.8 0.06 250)" radius={[2, 2, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
           <p className="mt-2 text-xs text-muted-foreground">
-            <span className="mr-1 inline-block h-2 w-2 rounded-sm bg-danger" />
-            Red bars indicate periods below plan
+            <span className="mr-1 inline-block h-2 w-2 rounded-sm" style={{ background: "oklch(0.65 0.17 25)" }} />
+            Red bars indicate Actual below Planned
           </p>
         </ChartCard>
       </section>
+
+
+      <PerformancePanel
+        countries={detail.countries}
+        sites={detail.sites ?? []}
+        onSelect={focusRow}
+      />
 
       <section className="mt-5">
         <div className="flex items-center justify-between">
@@ -455,20 +482,6 @@ function StudyOverviewPage() {
             >
               By Site
             </button>
-          </div>
-          <div className="flex items-center gap-2">
-            <PerfPopover
-              tone="down"
-              label="Underperforming"
-              title="Underperforming Sites — Top 3"
-              groups={detail.underperformingTop}
-            />
-            <PerfPopover
-              tone="up"
-              label="Overperforming"
-              title="Overperforming Sites — Top 3"
-              groups={detail.overperformingTop}
-            />
           </div>
         </div>
 
@@ -506,8 +519,12 @@ function StudyOverviewPage() {
                     return (
                       <React.Fragment key={c.name}>
                       <tr
+                        id={`country-row-${c.name}`}
                         onClick={() => toggle(`c-${c.name}`)}
-                        className="cursor-pointer border-b border-border/60 last:border-0 hover:bg-muted/40"
+                        className={cn(
+                          "cursor-pointer border-b border-border/60 last:border-0 hover:bg-muted/40 transition-colors",
+                          highlight === `country-row-${c.name}` && "bg-warning-bg/50",
+                        )}
                       >
                         <td className="px-4 py-3 text-muted-foreground">
                           {expanded[`c-${c.name}`] ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
@@ -578,7 +595,10 @@ function StudyOverviewPage() {
                       <tr
                         id={`site-row-${s.id}`}
                         onClick={() => toggle(key)}
-                        className="cursor-pointer border-b border-border/60 last:border-0 hover:bg-muted/40"
+                        className={cn(
+                          "cursor-pointer border-b border-border/60 last:border-0 hover:bg-muted/40 transition-colors",
+                          highlight === `site-row-${s.id}` && "bg-warning-bg/50",
+                        )}
                       >
                         <td className="px-4 py-3 text-muted-foreground">
                           {expanded[key] ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
@@ -813,5 +833,294 @@ function SiteDrilldown({ site }: { site: SiteRow }) {
         </table>
       </div>
     </div>
+  );
+}
+
+interface PerfEntry {
+  key: string;
+  kind: "country" | "site";
+  id: string;
+  name: string;
+  typeLabel: string;
+  meta?: string;
+  delta: number; // actual - target
+  pctDelta: number; // pct - 100
+  pct: number;
+}
+
+function PerformancePanel({
+  countries,
+  sites,
+  onSelect,
+}: {
+  countries: StudyDetail["countries"];
+  sites: SiteRow[];
+  onSelect: (kind: "country" | "site", id: string) => void;
+}) {
+  const [pView, setPView] = useState<"country" | "site">("country");
+  const [pShow, setPShow] = useState<"abs" | "pct">("abs");
+
+  const entries: PerfEntry[] = pView === "country"
+    ? countries.map((c) => ({
+        key: `c-${c.name}`,
+        kind: "country" as const,
+        id: c.name,
+        name: c.name,
+        typeLabel: "COUNTRY",
+        meta: `${c.actual}/${c.target} enrolled`,
+        delta: c.actual - c.target,
+        pctDelta: c.pct - 100,
+        pct: c.pct,
+      }))
+    : sites.map((s) => ({
+        key: `s-${s.id}`,
+        kind: "site" as const,
+        id: s.id,
+        name: s.name,
+        typeLabel: "SITE",
+        meta: `${s.country} · ${s.actual}/${s.target}`,
+        delta: s.actual - s.target,
+        pctDelta: s.pct - 100,
+        pct: s.pct,
+      }));
+
+  const metric = (e: PerfEntry) => pShow === "abs" ? e.delta : e.pctDelta;
+  const fmt = (v: number) => pShow === "abs"
+    ? `${v > 0 ? "+" : ""}${Math.round(v)} pts`
+    : `${v > 0 ? "+" : ""}${Math.round(v)}%`;
+
+  const under = [...entries].sort((a, b) => metric(a) - metric(b)).filter((e) => metric(e) < 0).slice(0, 5);
+  const over = [...entries].sort((a, b) => metric(b) - metric(a)).filter((e) => metric(e) > 0).slice(0, 5);
+
+  return (
+    <section className="mt-5 rounded-xl border border-border bg-card shadow-card">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-5 py-3">
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          Performance Panel
+        </h3>
+        <div className="flex flex-wrap items-center gap-4">
+          <SegGroup label="View" value={pView} onChange={setPView} options={[
+            { v: "country", l: "Country" },
+            { v: "site", l: "Site" },
+          ]} />
+          <SegGroup label="Show" value={pShow} onChange={setPShow} options={[
+            { v: "abs", l: "Absolute" },
+            { v: "pct", l: "%" },
+          ]} />
+        </div>
+      </div>
+      <div className="grid grid-cols-1 gap-px bg-border md:grid-cols-2">
+        <PerfColumn
+          tone="down"
+          title="Underperforming"
+          entries={under}
+          format={fmt}
+          metric={metric}
+          onSelect={onSelect}
+        />
+        <PerfColumn
+          tone="up"
+          title="Overperforming"
+          entries={over}
+          format={fmt}
+          metric={metric}
+          onSelect={onSelect}
+        />
+      </div>
+    </section>
+  );
+}
+
+function SegGroup<T extends string>({
+  label, value, onChange, options,
+}: {
+  label: string; value: T;
+  onChange: (v: T) => void;
+  options: Array<{ v: T; l: string }>;
+}) {
+  return (
+    <div className="flex items-center gap-2">
+      <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{label}</span>
+      <div className="inline-flex rounded-md bg-muted p-0.5">
+        {options.map((o) => (
+          <button
+            key={o.v}
+            type="button"
+            onClick={() => onChange(o.v)}
+            className={cn(
+              "rounded px-2.5 py-1 text-xs font-medium transition-colors",
+              value === o.v
+                ? "bg-card text-primary shadow-sm"
+                : "text-muted-foreground hover:text-foreground",
+            )}
+          >
+            {o.l}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function PerfColumn({
+  tone, title, entries, format, metric, onSelect,
+}: {
+  tone: "up" | "down";
+  title: string;
+  entries: PerfEntry[];
+  format: (v: number) => string;
+  metric: (e: PerfEntry) => number;
+  onSelect: (kind: "country" | "site", id: string) => void;
+}) {
+  const Icon = tone === "down" ? TrendingDown : TrendingUp;
+  const accent = tone === "down"
+    ? { dot: "bg-danger", text: "text-danger-foreground", badge: "bg-danger-bg text-danger-foreground", hover: "hover:bg-danger-bg/40" }
+    : { dot: "bg-success", text: "text-success-foreground", badge: "bg-success-bg text-success-foreground", hover: "hover:bg-success-bg/40" };
+  return (
+    <div className="bg-card p-4">
+      <div className="mb-3 flex items-center justify-between">
+        <div className={cn("inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider", accent.text)}>
+          <Icon className="h-3.5 w-3.5" />
+          {title}
+        </div>
+        <span className={cn("rounded-full px-2 py-0.5 text-[10px] font-semibold", accent.badge)}>
+          {entries.length}
+        </span>
+      </div>
+      {entries.length === 0 ? (
+        <p className="py-6 text-center text-xs text-muted-foreground">No entries.</p>
+      ) : (
+        <ul className="divide-y divide-border/60">
+          {entries.map((e, i) => (
+            <li key={e.key}>
+              <button
+                type="button"
+                onClick={() => onSelect(e.kind, e.id)}
+                className={cn(
+                  "flex w-full items-center gap-3 rounded-md px-2 py-2 text-left transition-colors",
+                  accent.hover,
+                )}
+              >
+                <span className="w-5 shrink-0 text-xs font-semibold tabular-nums text-muted-foreground">
+                  {i + 1}
+                </span>
+                <span className={cn("h-1.5 w-1.5 shrink-0 rounded-full", accent.dot)} />
+                <span className="min-w-0 flex-1">
+                  <span className="flex items-center gap-2">
+                    <span className="truncate text-sm font-medium text-foreground">{e.name}</span>
+                    <span className="rounded bg-muted px-1.5 py-0.5 text-[9px] font-semibold tracking-wider text-muted-foreground">
+                      {e.typeLabel}
+                    </span>
+                  </span>
+                  {e.meta && (
+                    <span className="mt-0.5 block truncate text-[11px] text-muted-foreground">
+                      {e.meta}
+                    </span>
+                  )}
+                </span>
+                <span className="shrink-0 text-right">
+                  <span className={cn("block text-sm font-semibold tabular-nums", accent.text)}>
+                    {format(metric(e))}
+                  </span>
+                  <span className="block text-[10px] text-muted-foreground tabular-nums">
+                    {e.pct.toFixed(1)}%
+                  </span>
+                </span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+interface MilestoneRow { code: string; label: string; planned: string; actual: string }
+
+function parseDate(s: string): Date | null {
+  if (!s || s === "—") return null;
+  const d = new Date(s);
+  return isNaN(d.getTime()) ? null : d;
+}
+function fmt(d: Date): string {
+  return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+}
+function addMonths(d: Date, m: number): Date {
+  const x = new Date(d); x.setMonth(x.getMonth() + m); return x;
+}
+
+function buildMilestones(detail: StudyDetail): MilestoneRow[] {
+  const plannedFPI = parseDate(detail.plannedFPI);
+  const actualFPI = parseDate(detail.actualFPI);
+  const plannedLPI = parseDate(detail.plannedLPI);
+  const fsaPlanned = plannedFPI ? addMonths(plannedFPI, -3) : null;
+  const fsaActual = actualFPI ? addMonths(actualFPI, -2) : null;
+  const dblPlanned = plannedLPI ? addMonths(plannedLPI, 5) : null;
+  const rcPlanned = plannedLPI ? addMonths(plannedLPI, 10) : null;
+  return [
+    { code: "FSA",  label: "First Site Activated",     planned: fsaPlanned ? fmt(fsaPlanned) : "—", actual: fsaActual ? fmt(fsaActual) : "—" },
+    { code: "FSFV", label: "First Subject First Visit", planned: detail.plannedFPI, actual: detail.actualFPI },
+    { code: "LSFV", label: "Last Subject First Visit",  planned: detail.plannedLPI, actual: "—" },
+    { code: "DBL",  label: "Database Lock",             planned: dblPlanned ? fmt(dblPlanned) : "—", actual: "—" },
+    { code: "RC",   label: "Report Complete",           planned: rcPlanned ? fmt(rcPlanned) : "—", actual: "—" },
+  ];
+}
+
+function variance(planned: string, actual: string): { text: string; tone: "neutral" | "ok" | "warn" | "bad" } {
+  if (!actual || actual === "—") return { text: "Pending", tone: "neutral" };
+  const p = parseDate(planned); const a = parseDate(actual);
+  if (!p || !a) return { text: "—", tone: "neutral" };
+  const diff = Math.round((a.getTime() - p.getTime()) / 86400000);
+  if (diff <= 0) return { text: "On time", tone: "ok" };
+  if (diff <= 14) return { text: `+${diff}d`, tone: "warn" };
+  return { text: `+${diff}d`, tone: "bad" };
+}
+
+function MilestonesPopover({ detail }: { detail: StudyDetail }) {
+  const rows = buildMilestones(detail);
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button className="inline-flex items-center gap-1.5 rounded-md border border-input bg-card px-3 py-1.5 text-sm font-medium text-foreground hover:bg-muted">
+          <Calendar className="h-4 w-4" /> Milestones
+        </button>
+      </PopoverTrigger>
+      <PopoverContent align="end" className="w-[520px] rounded-xl border border-border bg-card p-5 shadow-card">
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Key Milestone Dates</h3>
+        <div className="mt-4 overflow-hidden rounded-lg border border-border">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-muted/60 text-xs font-semibold text-muted-foreground">
+                <th className="px-3 py-2 text-left">Milestone</th>
+                <th className="px-3 py-2 text-left">Planned</th>
+                <th className="px-3 py-2 text-left">Actual</th>
+                <th className="px-3 py-2 text-left">Variance</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((r) => {
+                const v = variance(r.planned, r.actual);
+                const toneCls =
+                  v.tone === "ok" ? "text-success-foreground"
+                  : v.tone === "warn" ? "text-warning-foreground"
+                  : v.tone === "bad" ? "text-danger-foreground"
+                  : "text-muted-foreground";
+                return (
+                  <tr key={r.code} className="border-t border-border">
+                    <td className="px-3 py-2.5 align-top">
+                      <span className="font-semibold text-foreground">{r.code}</span>
+                      <span className="text-muted-foreground"> — {r.label}</span>
+                    </td>
+                    <td className="px-3 py-2.5 align-top tabular-nums text-foreground">{r.planned || "—"}</td>
+                    <td className="px-3 py-2.5 align-top tabular-nums text-foreground">{r.actual || "—"}</td>
+                    <td className={cn("px-3 py-2.5 align-top text-sm font-medium tabular-nums", toneCls)}>{v.text}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </PopoverContent>
+    </Popover>
   );
 }
