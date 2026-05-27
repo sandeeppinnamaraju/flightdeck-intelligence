@@ -32,7 +32,7 @@ function LoginPage() {
     }
     setError("");
     setSession({ username: match.username, role: match.role });
-    navigate({ to: "/" });
+    navigate({ to: "/home" });
   }
 
   return (
@@ -50,8 +50,9 @@ function LoginPage() {
           </span>
           <span className="text-2xl font-bold tracking-tight text-foreground">Flight Deck</span>
         </div>
-        <p className="mt-2 text-center text-sm text-muted-foreground">
-          Clinical Trials Intelligence
+        <p className="mt-3 text-center text-sm text-muted-foreground">
+          The operating cockpit for clinical operations — pilot every study,
+          site, and protocol from one live workspace.
         </p>
 
         {/* Sign in card */}
@@ -116,10 +117,6 @@ function LoginPage() {
             </button>
           </form>
         </section>
-
-        <p className="mt-6 text-center text-xs text-muted-foreground">
-          MVP · Mock data only · No real authentication
-        </p>
       </div>
     </main>
   );

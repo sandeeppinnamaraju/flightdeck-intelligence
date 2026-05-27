@@ -1,8 +1,8 @@
 import { Link, useLocation } from "@tanstack/react-router";
 import { Home, LayoutGrid, Search, type LucideIcon } from "lucide-react";
 
-const tabs: { to: "/" | "/portfolio" | "/protocol-search"; label: string; icon: LucideIcon }[] = [
-  { to: "/", label: "Home", icon: Home },
+const tabs: { to: "/home" | "/portfolio" | "/protocol-search"; label: string; icon: LucideIcon }[] = [
+  { to: "/home", label: "Home", icon: Home },
   { to: "/portfolio", label: "Study Portfolio", icon: LayoutGrid },
   { to: "/protocol-search", label: "Protocol Search", icon: Search },
 ];
@@ -12,12 +12,12 @@ export function TopNav() {
   return (
     <header className="sticky top-0 z-30 w-full bg-nav text-nav-foreground shadow-sm">
       <div className="mx-auto flex h-14 max-w-[1600px] items-center gap-8 px-6">
-        <Link to="/" className="text-lg font-bold tracking-tight">
+        <Link to="/home" className="text-lg font-bold tracking-tight">
           Flight Deck
         </Link>
         <nav className="flex items-center gap-1">
           {tabs.map((t) => {
-            const active = t.to === "/" ? pathname === "/" : pathname.startsWith(t.to);
+            const active = pathname === t.to || pathname.startsWith(t.to + "/");
             const Icon = t.icon;
             return (
               <Link
