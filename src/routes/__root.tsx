@@ -4,10 +4,14 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
+  useNavigate,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { TopNav } from "@/components/top-nav";
+import { getSession } from "@/lib/auth";
 
 import appCss from "../styles.css?url";
 
@@ -22,10 +26,10 @@ function NotFoundComponent() {
         </p>
         <div className="mt-6">
           <Link
-            to="/"
+            to="/home"
             className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
           >
-            Back to Portfolio
+            Back to Home
           </Link>
         </div>
       </div>
@@ -82,10 +86,20 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const navigate = useNavigate();
+  const isLogin = pathname === "/login";
+
+  useEffect(() => {
+    if (!isLogin && !getSession()) {
+      navigate({ to: "/login" });
+    }
+  }, [isLogin, pathname, navigate]);
+
   return (
     <QueryClientProvider client={queryClient}>
       <div className="min-h-screen bg-background">
-        <TopNav />
+        {!isLogin && <TopNav />}
         <Outlet />
       </div>
     </QueryClientProvider>
