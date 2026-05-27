@@ -1,6 +1,7 @@
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { Home, LayoutGrid, Search, Settings, LogOut, type LucideIcon } from "lucide-react";
-import { clearSession, getSession } from "@/lib/auth";
+import { clearSession, getSession, type SessionUser } from "@/lib/auth";
 
 const tabs: { to: "/home" | "/portfolio" | "/protocol-search" | "/configure"; label: string; icon: LucideIcon }[] = [
   { to: "/home", label: "Home", icon: Home },
@@ -12,7 +13,8 @@ const tabs: { to: "/home" | "/portfolio" | "/protocol-search" | "/configure"; la
 export function TopNav() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  const session = typeof window !== "undefined" ? getSession() : null;
+  const [session, setSession] = useState<SessionUser | null>(null);
+  useEffect(() => { setSession(getSession()); }, [pathname]);
 
   function handleSignOut() {
     clearSession();
