@@ -86,10 +86,20 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const navigate = useNavigate();
+  const isLogin = pathname === "/login";
+
+  useEffect(() => {
+    if (!isLogin && !getSession()) {
+      navigate({ to: "/login" });
+    }
+  }, [isLogin, pathname, navigate]);
+
   return (
     <QueryClientProvider client={queryClient}>
       <div className="min-h-screen bg-background">
-        <TopNav />
+        {!isLogin && <TopNav />}
         <Outlet />
       </div>
     </QueryClientProvider>
