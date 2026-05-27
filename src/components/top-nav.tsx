@@ -1,6 +1,7 @@
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { Home, LayoutGrid, Search, Settings, LogOut, type LucideIcon } from "lucide-react";
-import { clearSession, getSession } from "@/lib/auth";
+import { clearSession, getSession, type SessionUser } from "@/lib/auth";
 
 const tabs: { to: "/home" | "/portfolio" | "/protocol-search" | "/configure"; label: string; icon: LucideIcon }[] = [
   { to: "/home", label: "Home", icon: Home },
