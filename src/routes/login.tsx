@@ -32,7 +32,7 @@ function LoginPage() {
     }
     setError("");
     setSession({ username: match.username, role: match.role });
-    navigate({ to: "/" });
+    navigate({ to: "/home" });
   }
 
   return (
