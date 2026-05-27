@@ -837,3 +837,202 @@ function SiteDrilldown({ site }: { site: SiteRow }) {
     </div>
   );
 }
+
+interface PerfEntry {
+  key: string;
+  kind: "country" | "site";
+  id: string;
+  name: string;
+  typeLabel: string;
+  meta?: string;
+  delta: number; // actual - target
+  pctDelta: number; // pct - 100
+  pct: number;
+}
+
+function PerformancePanel({
+  countries,
+  sites,
+  onSelect,
+}: {
+  countries: StudyDetail["countries"];
+  sites: SiteRow[];
+  onSelect: (kind: "country" | "site", id: string) => void;
+}) {
+  const [pView, setPView] = useState<"country" | "site">("country");
+  const [pShow, setPShow] = useState<"abs" | "pct">("abs");
+
+  const entries: PerfEntry[] = pView === "country"
+    ? countries.map((c) => ({
+        key: `c-${c.name}`,
+        kind: "country" as const,
+        id: c.name,
+        name: c.name,
+        typeLabel: "COUNTRY",
+        meta: `${c.actual}/${c.target} enrolled`,
+        delta: c.actual - c.target,
+        pctDelta: c.pct - 100,
+        pct: c.pct,
+      }))
+    : sites.map((s) => ({
+        key: `s-${s.id}`,
+        kind: "site" as const,
+        id: s.id,
+        name: s.name,
+        typeLabel: "SITE",
+        meta: `${s.country} · ${s.actual}/${s.target}`,
+        delta: s.actual - s.target,
+        pctDelta: s.pct - 100,
+        pct: s.pct,
+      }));
+
+  const metric = (e: PerfEntry) => pShow === "abs" ? e.delta : e.pctDelta;
+  const fmt = (v: number) => pShow === "abs"
+    ? `${v > 0 ? "+" : ""}${Math.round(v)} pts`
+    : `${v > 0 ? "+" : ""}${Math.round(v)}%`;
+
+  const under = [...entries].sort((a, b) => metric(a) - metric(b)).filter((e) => metric(e) < 0).slice(0, 5);
+  const over = [...entries].sort((a, b) => metric(b) - metric(a)).filter((e) => metric(e) > 0).slice(0, 5);
+
+  return (
+    <section className="mt-5 rounded-xl border border-border bg-card shadow-card">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-5 py-3">
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          Performance Panel
+        </h3>
+        <div className="flex flex-wrap items-center gap-4">
+          <SegGroup label="View" value={pView} onChange={setPView} options={[
+            { v: "country", l: "Country" },
+            { v: "site", l: "Site" },
+          ]} />
+          <SegGroup label="Show" value={pShow} onChange={setPShow} options={[
+            { v: "abs", l: "Absolute" },
+            { v: "pct", l: "%" },
+          ]} />
+        </div>
+      </div>
+      <div className="grid grid-cols-1 gap-px bg-border md:grid-cols-2">
+        <PerfColumn
+          tone="down"
+          title="Underperforming"
+          entries={under}
+          format={fmt}
+          metric={metric}
+          onSelect={onSelect}
+        />
+        <PerfColumn
+          tone="up"
+          title="Overperforming"
+          entries={over}
+          format={fmt}
+          metric={metric}
+          onSelect={onSelect}
+        />
+      </div>
+    </section>
+  );
+}
+
+function SegGroup<T extends string>({
+  label, value, onChange, options,
+}: {
+  label: string; value: T;
+  onChange: (v: T) => void;
+  options: Array<{ v: T; l: string }>;
+}) {
+  return (
+    <div className="flex items-center gap-2">
+      <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{label}</span>
+      <div className="inline-flex rounded-md bg-muted p-0.5">
+        {options.map((o) => (
+          <button
+            key={o.v}
+            type="button"
+            onClick={() => onChange(o.v)}
+            className={cn(
+              "rounded px-2.5 py-1 text-xs font-medium transition-colors",
+              value === o.v
+                ? "bg-card text-primary shadow-sm"
+                : "text-muted-foreground hover:text-foreground",
+            )}
+          >
+            {o.l}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function PerfColumn({
+  tone, title, entries, format, metric, onSelect,
+}: {
+  tone: "up" | "down";
+  title: string;
+  entries: PerfEntry[];
+  format: (v: number) => string;
+  metric: (e: PerfEntry) => number;
+  onSelect: (kind: "country" | "site", id: string) => void;
+}) {
+  const Icon = tone === "down" ? TrendingDown : TrendingUp;
+  const accent = tone === "down"
+    ? { dot: "bg-danger", text: "text-danger-foreground", badge: "bg-danger-bg text-danger-foreground", hover: "hover:bg-danger-bg/40" }
+    : { dot: "bg-success", text: "text-success-foreground", badge: "bg-success-bg text-success-foreground", hover: "hover:bg-success-bg/40" };
+  return (
+    <div className="bg-card p-4">
+      <div className="mb-3 flex items-center justify-between">
+        <div className={cn("inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider", accent.text)}>
+          <Icon className="h-3.5 w-3.5" />
+          {title}
+        </div>
+        <span className={cn("rounded-full px-2 py-0.5 text-[10px] font-semibold", accent.badge)}>
+          {entries.length}
+        </span>
+      </div>
+      {entries.length === 0 ? (
+        <p className="py-6 text-center text-xs text-muted-foreground">No entries.</p>
+      ) : (
+        <ul className="divide-y divide-border/60">
+          {entries.map((e, i) => (
+            <li key={e.key}>
+              <button
+                type="button"
+                onClick={() => onSelect(e.kind, e.id)}
+                className={cn(
+                  "flex w-full items-center gap-3 rounded-md px-2 py-2 text-left transition-colors",
+                  accent.hover,
+                )}
+              >
+                <span className="w-5 shrink-0 text-xs font-semibold tabular-nums text-muted-foreground">
+                  {i + 1}
+                </span>
+                <span className={cn("h-1.5 w-1.5 shrink-0 rounded-full", accent.dot)} />
+                <span className="min-w-0 flex-1">
+                  <span className="flex items-center gap-2">
+                    <span className="truncate text-sm font-medium text-foreground">{e.name}</span>
+                    <span className="rounded bg-muted px-1.5 py-0.5 text-[9px] font-semibold tracking-wider text-muted-foreground">
+                      {e.typeLabel}
+                    </span>
+                  </span>
+                  {e.meta && (
+                    <span className="mt-0.5 block truncate text-[11px] text-muted-foreground">
+                      {e.meta}
+                    </span>
+                  )}
+                </span>
+                <span className="shrink-0 text-right">
+                  <span className={cn("block text-sm font-semibold tabular-nums", accent.text)}>
+                    {format(metric(e))}
+                  </span>
+                  <span className="block text-[10px] text-muted-foreground tabular-nums">
+                    {e.pct.toFixed(1)}%
+                  </span>
+                </span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
