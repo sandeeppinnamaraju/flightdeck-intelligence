@@ -597,7 +597,10 @@ function StudyOverviewPage() {
                       <tr
                         id={`site-row-${s.id}`}
                         onClick={() => toggle(key)}
-                        className="cursor-pointer border-b border-border/60 last:border-0 hover:bg-muted/40"
+                        className={cn(
+                          "cursor-pointer border-b border-border/60 last:border-0 hover:bg-muted/40 transition-colors",
+                          highlight === `site-row-${s.id}` && "bg-warning-bg/50",
+                        )}
                       >
                         <td className="px-4 py-3 text-muted-foreground">
                           {expanded[key] ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
