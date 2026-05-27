@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { ArrowLeft, Calendar, TrendingDown, TrendingUp, ChevronRight, ChevronDown } from "lucide-react";
 import {
   LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer,
-  BarChart, Bar, CartesianGrid, Legend,
+  BarChart, Bar, Cell, CartesianGrid, Legend,
 } from "recharts";
 import { studies } from "@/lib/data";
 import { cn } from "@/lib/utils";
@@ -411,8 +411,8 @@ function StudyOverviewPage() {
               <Tooltip />
               <Legend iconType="plainline" wrapperStyle={{ fontSize: 12 }} />
               <Line type="monotone" dataKey="actual" name="Actual" stroke="oklch(0.45 0.2 263)" strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="forecast" name="Forecast" stroke="oklch(0.55 0.14 170)" strokeWidth={2} strokeDasharray="5 4" dot={false} />
-              <Line type="monotone" dataKey="planned" name="Planned" stroke="oklch(0.7 0.08 200)" strokeWidth={2} strokeDasharray="2 3" dot={false} />
+              <Line type="monotone" dataKey="forecast" name="Forecast" stroke="oklch(0.62 0.17 35)" strokeWidth={2} strokeDasharray="6 4" dot={false} />
+              <Line type="monotone" dataKey="planned" name="Planned" stroke="oklch(0.55 0.12 160)" strokeWidth={2} strokeDasharray="2 3" dot={false} />
             </LineChart>
           </ResponsiveContainer>
         </ChartCard>
@@ -425,16 +425,24 @@ function StudyOverviewPage() {
               <YAxis tick={{ fontSize: 11, fill: "oklch(0.5 0.02 260)" }} />
               <Tooltip />
               <Legend wrapperStyle={{ fontSize: 12 }} />
-              <Bar dataKey="actual" name="Actual" fill="oklch(0.45 0.2 263)" radius={[2, 2, 0, 0]} />
-              <Bar dataKey="planned" name="Planned" fill="oklch(0.75 0.1 263)" radius={[2, 2, 0, 0]} />
+              <Bar dataKey="actual" name="Actual" radius={[2, 2, 0, 0]}>
+                {rates.map((r, i) => (
+                  <Cell
+                    key={i}
+                    fill={r.actual < r.planned ? "oklch(0.65 0.17 25)" : "oklch(0.45 0.2 263)"}
+                  />
+                ))}
+              </Bar>
+              <Bar dataKey="planned" name="Planned" fill="oklch(0.8 0.06 250)" radius={[2, 2, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
           <p className="mt-2 text-xs text-muted-foreground">
-            <span className="mr-1 inline-block h-2 w-2 rounded-sm bg-danger" />
-            Red bars indicate periods below plan
+            <span className="mr-1 inline-block h-2 w-2 rounded-sm" style={{ background: "oklch(0.65 0.17 25)" }} />
+            Red bars indicate Actual below Planned
           </p>
         </ChartCard>
       </section>
+
 
       <section className="mt-5">
         <div className="flex items-center justify-between">
