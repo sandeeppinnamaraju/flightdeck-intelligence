@@ -4,10 +4,14 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
+  useNavigate,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { TopNav } from "@/components/top-nav";
+import { getSession } from "@/lib/auth";
 
 import appCss from "../styles.css?url";
 
