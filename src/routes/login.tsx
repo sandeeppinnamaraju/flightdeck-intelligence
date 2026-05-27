@@ -50,8 +50,9 @@ function LoginPage() {
           </span>
           <span className="text-2xl font-bold tracking-tight text-foreground">Flight Deck</span>
         </div>
-        <p className="mt-2 text-center text-sm text-muted-foreground">
-          Clinical Trials Intelligence
+        <p className="mt-3 text-center text-sm text-muted-foreground">
+          The operating cockpit for clinical operations — pilot every study,
+          site, and protocol from one live workspace.
         </p>
 
         {/* Sign in card */}
