@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { studies } from "@/lib/data";
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/home")({
   head: () => ({
     meta: [
       { title: "Flight Deck — Portfolio Insights" },
