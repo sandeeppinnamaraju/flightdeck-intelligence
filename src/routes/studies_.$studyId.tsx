@@ -521,8 +521,12 @@ function StudyOverviewPage() {
                     return (
                       <React.Fragment key={c.name}>
                       <tr
+                        id={`country-row-${c.name}`}
                         onClick={() => toggle(`c-${c.name}`)}
-                        className="cursor-pointer border-b border-border/60 last:border-0 hover:bg-muted/40"
+                        className={cn(
+                          "cursor-pointer border-b border-border/60 last:border-0 hover:bg-muted/40 transition-colors",
+                          highlight === `country-row-${c.name}` && "bg-warning-bg/50",
+                        )}
                       >
                         <td className="px-4 py-3 text-muted-foreground">
                           {expanded[`c-${c.name}`] ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
