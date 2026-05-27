@@ -13,7 +13,8 @@ const tabs: { to: "/home" | "/portfolio" | "/protocol-search" | "/configure"; la
 export function TopNav() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  const session = typeof window !== "undefined" ? getSession() : null;
+  const [session, setSession] = useState<SessionUser | null>(null);
+  useEffect(() => { setSession(getSession()); }, [pathname]);
 
   function handleSignOut() {
     clearSession();
