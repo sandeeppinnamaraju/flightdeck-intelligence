@@ -457,6 +457,12 @@ function StudyOverviewPage() {
       </section>
 
 
+      <PerformancePanel
+        countries={detail.countries}
+        sites={detail.sites ?? []}
+        onSelect={focusRow}
+      />
+
       <section className="mt-5">
         <div className="flex items-center justify-between">
           <div className="inline-flex rounded-lg bg-muted p-1">
@@ -478,20 +484,6 @@ function StudyOverviewPage() {
             >
               By Site
             </button>
-          </div>
-          <div className="flex items-center gap-2">
-            <PerfPopover
-              tone="down"
-              label="Underperforming"
-              title="Underperforming Sites — Top 3"
-              groups={detail.underperformingTop}
-            />
-            <PerfPopover
-              tone="up"
-              label="Overperforming"
-              title="Overperforming Sites — Top 3"
-              groups={detail.overperformingTop}
-            />
           </div>
         </div>
 
