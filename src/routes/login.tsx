@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { Eye, EyeOff, FlaskConical } from "lucide-react";
+import { AUTH_USERS } from "@/config/auth-users";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
@@ -12,23 +13,6 @@ export const Route = createFileRoute("/login")({
   component: LoginPage,
 });
 
-const TEST_CREDS = [
-  {
-    role: "ADMIN",
-    username: "admin",
-    password: "Admin@123",
-    description: "Full portfolio access · All studies · Export capabilities",
-    tone: "primary" as const,
-  },
-  {
-    role: "VIEWER",
-    username: "viewer",
-    password: "Viewer@123",
-    description: "Read-only access · Portfolio & protocol search",
-    tone: "muted" as const,
-  },
-];
-
 function LoginPage() {
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
@@ -38,8 +22,8 @@ function LoginPage() {
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const match = TEST_CREDS.find(
-      (c) => c.username === username.trim() && c.password === password,
+    const match = AUTH_USERS.find(
+      (c) => c.username === username.trim().toLowerCase() && c.password === password,
     );
     if (!match) {
       setError("Invalid username or password.");
@@ -69,7 +53,7 @@ function LoginPage() {
         <section className="mt-8 rounded-2xl border border-border bg-card p-6 shadow-card sm:p-7">
           <h1 className="text-2xl font-bold text-foreground">Sign in</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Use the test credentials below or enter your own.
+            Enter your credentials to access Flight Deck.
           </p>
 
           <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
@@ -83,7 +67,7 @@ function LoginPage() {
                 autoComplete="username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="admin or viewer"
+                placeholder="Enter your username"
                 className="mt-1.5 h-11 w-full rounded-lg border border-input bg-background px-3 text-sm text-foreground shadow-sm outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/30"
               />
             </div>
@@ -127,61 +111,6 @@ function LoginPage() {
             </button>
           </form>
         </section>
-
-        {/* Test credentials */}
-        <div className="mt-8">
-          <p className="text-center text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-            Test credentials
-          </p>
-          <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
-            {TEST_CREDS.map((c) => (
-              <button
-                key={c.role}
-                type="button"
-                onClick={() => {
-                  setUsername(c.username);
-                  setPassword(c.password);
-                  setError("");
-                }}
-                className="group rounded-xl border border-border bg-card p-4 text-left shadow-card transition hover:border-primary/40 hover:shadow-card-hover"
-              >
-                <span
-                  className={
-                    "inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-bold tracking-wide " +
-                    (c.tone === "primary"
-                      ? "bg-accent text-accent-foreground"
-                      : "bg-muted text-muted-foreground")
-                  }
-                >
-                  <span
-                    className={
-                      "h-1.5 w-1.5 rounded-full " +
-                      (c.tone === "primary" ? "bg-primary" : "bg-muted-foreground")
-                    }
-                  />
-                  {c.role}
-                </span>
-                <dl className="mt-3 space-y-1.5 text-xs">
-                  <div className="flex items-center gap-2">
-                    <dt className="w-16 text-muted-foreground">Username</dt>
-                    <dd className="rounded bg-muted px-1.5 py-0.5 font-mono text-foreground">
-                      {c.username}
-                    </dd>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <dt className="w-16 text-muted-foreground">Password</dt>
-                    <dd className="rounded bg-muted px-1.5 py-0.5 font-mono text-foreground">
-                      {c.password}
-                    </dd>
-                  </div>
-                </dl>
-                <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
-                  {c.description}
-                </p>
-              </button>
-            ))}
-          </div>
-        </div>
 
         <p className="mt-8 text-center text-xs text-muted-foreground">
           MVP · Mock data only · No real authentication
