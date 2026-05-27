@@ -276,7 +276,20 @@ function StudyOverviewPage() {
   const [range, setRange] = useState<"full" | "since" | "last3">("full");
   const [view, setView] = useState<"country" | "site">("country");
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+  const [highlight, setHighlight] = useState<string | null>(null);
   const toggle = (k: string) => setExpanded((p) => ({ ...p, [k]: !p[k] }));
+
+  const focusRow = (kind: "country" | "site", id: string) => {
+    setView(kind);
+    const expKey = kind === "country" ? `c-${id}` : `s-${id}`;
+    const rowId = kind === "country" ? `country-row-${id}` : `site-row-${id}`;
+    setExpanded((p) => ({ ...p, [expKey]: true }));
+    setHighlight(rowId);
+    setTimeout(() => {
+      document.getElementById(rowId)?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 50);
+    setTimeout(() => setHighlight(null), 2200);
+  };
 
   if (!study) {
     return (
