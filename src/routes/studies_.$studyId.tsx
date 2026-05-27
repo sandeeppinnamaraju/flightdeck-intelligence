@@ -337,9 +337,7 @@ function StudyOverviewPage() {
               {study.indication} · {study.therapeuticArea} · {study.portfolio.replace(" Portfolio", "")} & Hematology
             </p>
           </div>
-          <button className="inline-flex items-center gap-1.5 rounded-md border border-input bg-card px-3 py-1.5 text-sm font-medium text-foreground hover:bg-muted">
-            <Calendar className="h-4 w-4" /> Milestones
-          </button>
+          <MilestonesPopover detail={detail} />
         </div>
 
         <div className="mt-6 grid grid-cols-2 gap-x-6 gap-y-5 md:grid-cols-5">
