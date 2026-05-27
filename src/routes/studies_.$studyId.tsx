@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { ArrowLeft, Calendar, TrendingDown, TrendingUp, ChevronRight, ChevronDown } from "lucide-react";
 import {
   LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer,
-  BarChart, Bar, CartesianGrid, Legend,
+  BarChart, Bar, Cell, CartesianGrid, Legend,
 } from "recharts";
 import { studies } from "@/lib/data";
 import { cn } from "@/lib/utils";
